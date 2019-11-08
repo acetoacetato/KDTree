@@ -50,6 +50,7 @@ class Node{
         float rangoR[2];
 
         int profundidad;
+        int dimension;
 
         //Nodos hijos y el que lo contiene, null si es raíz
         Node *left, *right, *padre;
@@ -75,13 +76,13 @@ Node::Node(float puntos[]){
 
 //FIXME: la inserción no está correcta, ni idea de porque
 void Node::insertar(float puntos[]){
-    cout << "Se inserta" << puntos[0]  << ", " << puntos[1] << ", " << puntos[2] << endl;
+    cout << "Se inserta: " << puntos[0]  << ", " << puntos[1] << ", " << puntos[2] << endl;
     bool insertado = false;
     int dimension = 0;
     Node *actual = this;
     Node* aux = new Node(puntos);
     while(!insertado){
-        cout << "Dimension " << dimension << endl;
+        cout << "Dimension " << dimension << " [" << actual->rangoL[0] << ", " << actual->rangoL[1] << "] || [" << actual->rangoR[0] << ", " << actual->rangoR[1] << "]"<<endl;
         Punto punto = *actual->punto;
         Node* r = actual->right;
         Node* l = actual->left;
@@ -92,12 +93,17 @@ void Node::insertar(float puntos[]){
         aux->rangoR[1] = puntos[dimension];
 
         if(punto.compareD(puntos, dimension) == 0){
+            //if(actual->rangoR[0] > puntos[dimension])
+            //    actual->rangoR[0] = puntos[dimension];
+//
+            //if(actual ->rangoR[1] < puntos[dimension])
+            //    actual->rangoR[1] = puntos[dimension];
+
             if(actual->right == nullptr){
                 actual->right = aux;
                 aux->padre = actual;
-                actual->rangoR[0] = puntos[dimension];
-                actual->rangoR[1] = puntos[dimension];
-
+                //actual->rangoR[0] = puntos[dimension];
+                //actual->rangoR[1] = puntos[dimension];
                 cout << "Se inserta en : Der" << endl;
                 actualizarProfundidad(aux);
                 return;
@@ -106,41 +112,35 @@ void Node::insertar(float puntos[]){
             dimension = (dimension + 1) % k;
             continue;
         }
-            
+        cout << "\t\t(" << punto.point[0] << ", " << punto.point[1] << ", " << punto.point[2] << ")" << endl;           
         switch(actual->compareR(puntos[dimension])){
             //se deja en el subarbol con menos profundidad
             case 0:
                 if(r == nullptr){
                     actual->right = aux;
                     aux->padre = actual;
-                    actual->rangoR[0] = puntos[dimension];
-                    actual->rangoR[1] = puntos[dimension];
-
-                    cout << "Se inserta en : Der(0)" << endl;
+                    cout << "Se inserta en : Der" << endl;
+                    aux->dimension = dimension;
                     actualizarProfundidad(aux);
                     return;
                 }
                 if(l == nullptr){
                     actual->left = aux;
                     aux->padre = actual;
-                    actual->rangoL[0] = puntos[dimension];
-                    actual->rangoL[1] = puntos[dimension];
-                    cout << "Se inserta en : Izq(0)" << endl;
+                    cout << "Se inserta en : Izq" << endl;
+                    aux->dimension = dimension;
                     actualizarProfundidad(aux);
                     return;
                 }
                 
                 
                 if(r->profundidad > l->profundidad){
-                    cout << "Izq(0) [" << actual->rangoL[0] << ", " << actual->rangoL[1]<< "]" << endl;
-                    //ver que rangos actualizar de left
-                    actual->rangoL[1] = puntos[dimension];
+                    cout << "Izq [" << actual->rangoL[0] << ", " << actual->rangoL[1]<< "]" << endl;
                     actual = actual->left;
                     
                 }
                 else{
-                    cout << "Der(0) [" << actual->rangoR[0] << ", " << actual->rangoR[1]<< "]" << endl;
-                    actual->rangoR[0] = puntos[dimension];
+                    cout << "Der [" << actual->rangoR[0] << ", " << actual->rangoR[1]<< "]" << endl;
                     actual = actual->right;
                 }
                 
@@ -148,33 +148,35 @@ void Node::insertar(float puntos[]){
             //se actualiza limites
             case 2:
                 actual->rangoR[1] = puntos[dimension];
-                cout << "2,";
+                
             //se va a derecha
             case 1:
                 if(actual->right == nullptr){
                     actual->right = aux;
                     aux->padre = actual;
-                    cout << "1)Se inserta en : Der" << endl;
+                    cout << "Se inserta en : Der" << endl;
+                    aux->dimension = dimension;
                     actualizarProfundidad(aux);
                     return;
                 }
-                cout << "1,)Der [" << actual->rangoR[0] << ", " << actual->rangoR[1]<< "]" << endl;
+                cout << "Der [" << actual->rangoR[0] << ", " << actual->rangoR[1]<< "]" << endl;
                 actual = actual->right;
                 break;
             //se actualiza limites
             case -2:
                 actual->rangoL[0] = puntos[dimension];
-                cout << "2,";
+                
             //se va a la izquierda
             case -1:
                 if(actual->left == nullptr){
                     actual->left = aux;
                     aux->padre = actual;
-                    cout << "1)Se inserta en : Izq" << endl;
+                    aux->dimension = dimension;
+                    cout << "Se inserta en : Izq" << endl;
                     actualizarProfundidad(aux);
                     return;
                 }
-                cout << "1)Izq [" << actual->rangoL[0] << ", " << actual->rangoL[1]<< "]" << endl;
+                cout << "Izq [" << actual->rangoL[0] << ", " << actual->rangoL[1]<< "]" << endl;
                 actual = actual->left;
                 break;
         }
@@ -187,10 +189,36 @@ void Node::insertar(float puntos[]){
 
 void Node::actualizarProfundidad(Node* nodo){
     int contador = 1;
-    
+    Punto* punto = nodo->punto;
     Node* aux = nodo->padre;
-    while(aux != nullptr && aux->profundidad < contador){
-        aux->profundidad = contador;
+    Node* auxHijo = nodo;
+    int dimActual;
+    while(aux != nullptr/* && aux->profundidad < contador*/){
+        if(aux->profundidad < contador){
+            aux->profundidad = contador;
+        }
+        dimActual = aux->dimension;
+        //se debe actualizar rango de derecha
+        if(auxHijo == aux->right){
+            if(aux->rangoR[0] > punto->point[dimActual]){
+                aux->rangoR[0] = punto->point[dimActual];
+            }
+
+            if(aux->rangoR[1] < punto->point[dimActual]){
+                aux->rangoR[1] = punto->point[dimActual];
+            }
+        }
+
+        if(auxHijo == aux->left){
+            if(aux->rangoL[0] > punto->point[dimActual]){
+                aux->rangoL[0] = punto->point[dimActual];
+            }
+
+            if(aux->rangoL[1] < punto->point[dimActual]){
+                aux->rangoL[1] = punto->point[dimActual];
+            }
+        }
+        
         aux = aux->padre;
     }
 }
@@ -239,6 +267,7 @@ Node* insertar(float puntos[], Node* kdtree = nullptr){
         nodo->rangoL[1] = puntos[0];
         nodo->rangoR[0] = puntos[0];
         nodo->rangoR[1] = puntos[0];
+        nodo->dimension = 0;
         return nodo;
     }
         
