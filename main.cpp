@@ -26,7 +26,8 @@ int main(){
     for(int i = 1 ; i<15 ; i++)
         arbolito = KDTreeRange::insertar(puntos[i], arbolito);
     
-    Punto* pto = arbolito->buscar(puntos[3]);
+    std::cout << "Profundidad: " << arbolito->profundidad << std::endl;;
+    Punto* pto = arbolito->buscar(puntos[9]);
     if(pto)
         std::cout << pto->point[0] << std::endl;
     else
