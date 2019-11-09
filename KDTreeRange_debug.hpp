@@ -95,7 +95,7 @@ void Node::updateRange(int dim){
 
 
 
-//FIXME: la inserción no está correcta desde el (9,6,7)
+
 void Node::insertar(float puntos[]){
     cout << "Se inserta: " << puntos[0]  << ", " << puntos[1] << ", " << puntos[2] << endl;
     bool insertado = false;
@@ -114,27 +114,27 @@ void Node::insertar(float puntos[]){
         }
         }
         int res = actual->compareR(puntos, dimension);
-        cout << "\tDimension: " << dimension << endl;
-        cout << "\tRango: [" << actual->rango[dimension][0] << ", " << actual->rango[dimension][1] << "]" << endl;
+        //cout << "\tDimension: " << dimension << endl;
+       // cout << "\tRango: [" << actual->rango[dimension][0] << ", " << actual->rango[dimension][1] << "]" << endl;
         
-        cout << "\tRango_L: [" << ((actual->left)? actual->left->rango[dimension][0]:-99) << ", " << ((actual->left)? actual->left->rango[dimension][1]:-99) << "]" << endl;
-        cout << "\tRango_R: [" << ((actual->right)? actual->right->rango[dimension][0]:-99) << ", " << ((actual->right)? actual->right->rango[dimension][1]:-99) << "]" << endl;
+        //cout << "\tRango_L: [" << ((actual->left)? actual->left->rango[dimension][0]:-99) << ", " << ((actual->left)? actual->left->rango[dimension][1]:-99) << "]" << endl;
+        //cout << "\tRango_R: [" << ((actual->right)? actual->right->rango[dimension][0]:-99) << ", " << ((actual->right)? actual->right->rango[dimension][1]:-99) << "]" << endl;
         
         
 
         
-        cout << "\tResultado = " << res << endl;
+        //cout << "\tResultado = " << res << endl;
         switch(res){
             
             case -1:
                 //se inserta en la izquierda
                 actual = actual ->left;
-                cout << "izq"<< endl;
+                //cout << "izq"<< endl;
                 break;
             case 1:
                 //se inserta en la derecha
                 actual = actual->right;
-                cout << "der"<< endl;
+                //cout << "der"<< endl;
                 break;
             case 0:
                 //se inserta de acuerdo al valor del nodo actual
@@ -183,21 +183,21 @@ void Node::insertar(float puntos[]){
                 //    actual = actual->left;
                 //    cout << "izq"<< endl;
                 //}
-                cout << "----ProfundidadL: " << actual->left->profundidad << endl; 
-                cout << "----ProfundidadR: " << actual->right->profundidad << endl; 
+                //cout << "----ProfundidadL: " << actual->left->profundidad << endl; 
+                //cout << "----ProfundidadR: " << actual->right->profundidad << endl; 
                 //se compara la dimension de cada lado
                 //if(actual->right->profundidad == actual->left->profundidad){
                     if(punto.compareD(puntos, dimension) == 1){
                         actual = actual->right;
-                        cout << "Der"<< endl;
+                        //cout << "Der"<< endl;
                     }else{
 
                         if(punto.compareD(puntos, dimension) == -1){
                             actual = actual->left;
-                            cout << "izq"<< endl;
+                            //cout << "izq"<< endl;
                         }else{
                             actual = actual->right;
-                            cout << "Derr" << endl;
+                            //cout << "Derr" << endl;
                         }
                     }
 
@@ -208,10 +208,10 @@ void Node::insertar(float puntos[]){
 
                 if(actual->right->profundidad < actual->left->profundidad){
                     actual = actual->right;
-                    cout << "der"<< endl;
+                    //cout << "der"<< endl;
                 }else{
                     actual = actual->left;
-                    cout << "1izq"<< endl;
+                    //cout << "1izq"<< endl;
                 }
 
                 break;

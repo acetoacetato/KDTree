@@ -1,0 +1,12 @@
+Para eliminar:
+
+    se busca el nodo a eliminar
+        si se encuentra, se va buscando la hoja más profunda
+        una vez encontrada, se le intercambia por el nodo a eliminar y se actualizan los rangos(?)
+        retornar el nodo eliminado
+    Si no se encuentra, retornar null
+
+
+
+hay que probar distintas inserciones, todas las posibilidades que puedan existir
+hay que probar eliminación, búsqueda e inserción, para así comprobar que no se rompe nada

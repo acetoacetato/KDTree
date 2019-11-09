@@ -1,4 +1,4 @@
-#include "KDTreeRange.hpp"
+#include "KDTreeRange_debug.hpp"
 #include<iostream>
 using namespace KDTreeRange;
 int main(){
@@ -19,36 +19,32 @@ int main(){
                             {8, 7, 6},
                             {9, 7, 8}
                         };
-   
-
-    //Se inicializa el arbol con 3 dimensiones.
-    KDTree<3>* arbolito = new KDTree<3>();
-    //return 0;
-    
 
     
-    for(int i = 0 ; i<15 ; i++)
-        arbolito->insertar(puntos[i]);
+
+    KDTreeRange::Node* arbolito = KDTreeRange::insertar(puntos[0]);
+    for(int i = 1 ; i<15 ; i++)
+        arbolito = KDTreeRange::insertar(puntos[i], arbolito);
     
-    std::cout << "Profundidad: " << arbolito->profundidad() << std::endl;;
-    
+    std::cout << "Profundidad: " << arbolito->profundidad << std::endl;;
+    Punto* pto = arbolito->buscar(puntos[7]);
 
     for(int i=14 ; i>=0 ; i--){
         cout << "Se busca: (" << puntos[i][0] << ", " << puntos[i][1] << ", " << puntos[i][2] << ")" << endl;
-        Punto<3>* pto = arbolito->buscar(puntos[i]);
+        Punto* pto = arbolito->buscar(puntos[i]);
 
         if(pto)
             std::cout << "Encontrado!" << std::endl;
         else
             std::cout << "Not Found" << std::endl;
     }
-    float testing[] = {3,3,3};
-    Punto<3>* pto = arbolito->buscar(testing);
+    if(pto)
+        std::cout << pto->point[0] << std::endl;
+    else
+        std::cout << "Not Found" << std::endl;
     
-    std::cout << ((pto)? "Found":"Not Found") << std::endl;
-
     std::cout << "\nEl arbol: " << std::endl;;
 
-    arbolito->mostrarArbol();
+    //arbolito->printTree();
 
 }
