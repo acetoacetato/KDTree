@@ -27,11 +27,26 @@ int main(){
         arbolito = KDTreeRange::insertar(puntos[i], arbolito);
     
     std::cout << "Profundidad: " << arbolito->profundidad << std::endl;;
-    Punto* pto = arbolito->buscar(puntos[9]);
+    
+
+    for(int i=14 ; i>=0 ; i--){
+        cout << "Se busca: (" << puntos[i][0] << ", " << puntos[i][1] << ", " << puntos[i][2] << ")" << endl;
+        Punto* pto = arbolito->buscar(puntos[i]);
+
+        if(pto)
+            std::cout << "Encontrado!" << std::endl;
+        else
+            std::cout << "Not Found" << std::endl;
+    }
+    float testing[] = {3,3,3};
+    Punto* pto = arbolito->buscar(testing);
     if(pto)
         std::cout << pto->point[0] << std::endl;
     else
         std::cout << "Not Found" << std::endl;
     
+    std::cout << "\nEl arbol: " << std::endl;;
+
+    //arbolito->printTree();
 
 }
