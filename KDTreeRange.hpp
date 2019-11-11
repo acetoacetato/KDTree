@@ -88,8 +88,14 @@ namespace KDTreeRange{
 
             //Imprime el árbol completo, mostrando los rangos, el nodo padre y de que lado está con respecto a este.
             void printTree();
+
+            //Elimina el punto, retornandolo en caso de existir.
+            Punto<k>* eliminar(float[]);
             private:
+                //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
                 void printTreeR(queue<Node*>);
+                //Busca y retorna el nodo que contenga el punto ingresado por parámetro o null en caso contrario.
+                Node<k>* buscarN(float []);
 
 
     };
@@ -323,12 +329,105 @@ namespace KDTreeRange{
         return true;
     }
 
+
+    template<int k>
+    Node<k>* Node<k>::buscarN(float punto[]){
+
+        int dimension = 0;
+        Node* actual = this;
+        Punto<k>* auxPunto;
+
+        while(actual != nullptr){
+            auxPunto = actual->punto;
+            
+            //Si es el mismo, retornarlo
+            if(actual->compare(punto))
+                return actual;
+            
+            //Si está fuera del rango del arbol, ya no existe
+            if(actual->rango[dimension][1] < punto[dimension] || actual->rango[dimension][0] > punto[dimension])
+                return nullptr;
+            
+            //sino, se ve en que rango puede estar
+            if(actual->right->rango[dimension][1] >= punto[dimension] && actual->right->rango[dimension][0] <= punto[dimension]){
+                actual = actual->right;
+            }      
+            else
+            {
+                actual = actual->left;
+            }
+            
+            dimension = (dimension + 1) % k;
+        }
+
+
+        return nullptr;
+    }
+
+
     template<int k>
     void Node<k>::printTree(){
         queue <Node<k>*> q;
         q.push(this);
         
         printTreeR(q);
+    }
+
+    template<int k>
+    Punto<k>* eliminar(float punto[]){
+        //Buscar el nodo a eliminar
+        Node<k>* nodo = buscarN(punto);
+        Node<k>* nodoAux = nodo;
+        if(nodo == nullptr)
+            return nullptr;
+        
+        //Se parte del nodo y se va hacia abajo, hasta llegar al nodo más profundo.
+
+        while(nodoAux->left != nullptr || nodoAux->right != nullptr){
+            Node<k>* nodoL = nodoAux->left;
+            Node<k>* nodoR = nodoAux->right;
+
+            //Se va hacia el nodo que no sea nulo
+
+            if(nodoL == nullptr){
+                nodoAux = nodoR;
+                continue;
+            }
+
+            if(nodoR == nullptr){
+                nodoAux = nodoL;
+                continue;
+            }
+
+            //Si ninguno de los 2 es nulo, se va hacia el de menor profundidad o al izquierdo por defecto.
+            if(nodoL->profundidad < nodoR->profundidad){
+                nodoAux = nodoAux->right;
+                continue;
+            }else{
+                nodoAux = nodoAux->left;
+                continue
+            }
+        }   
+
+        //Si el nodo es igual al nodo a eliminar, se elimina y el arbol queda vacío
+        if(nodoAux == nodo){
+            return nodo;
+        }
+
+        //Sino, se reemplaza y se va subiendo y actualizando los rangos.
+        //TODO: ver cómo actualizar los rangos sin romper cosas.
+
+        nodo->punto = nodoAux->punto;
+        if(nodoAux->padre->left == nodoAux){
+            nodoAux->padre->left = nullptr;
+            return nodoAux;
+        } 
+        
+        if(nodoAux->padre->right == nodoAux){
+            nodoAux->padre->right = nullptr;
+            return nodoAux;
+        }
+
     }
 
     template<int k>
@@ -371,9 +470,10 @@ namespace KDTreeRange{
         public:        
             KDTree();
             int profundidad();
-            Node<k>* insertar(float punto[]);
+            Node<k>* insertar(float []);
             void mostrarArbol();
             Punto<k>* buscar(float[]);
+            Punto<k>* eliminar(float[]);
 
     };
 
@@ -416,8 +516,16 @@ namespace KDTreeRange{
         return raiz->buscar(punto);
     }
 
-
-
+    template<int k>
+    Punto<k>* KDTree<k>::eliminar(float punto[]){
+        if(raiz == nullptr)
+            return nullptr;
+        Node<k>* nodo = raiz->eliminar(punto);
+        if(nodo == raiz){
+            raiz = nullptr;
+        }
+        return nodo;
+    }
 }
 
 #endif

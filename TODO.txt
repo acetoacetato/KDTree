@@ -6,6 +6,8 @@ Para eliminar:
         retornar el nodo eliminado
     Si no se encuentra, retornar null
 
+Faltaría actualizar las profundidades y los rangos.
+
 
 
 hay que probar distintas inserciones, todas las posibilidades que puedan existir
