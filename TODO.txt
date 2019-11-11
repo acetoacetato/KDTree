@@ -8,7 +8,18 @@ Para eliminar:
 
 Faltaría actualizar las profundidades y los rangos.
 
+Para actualizar
+    Se comienza con el padre de la hoja reemplazada, guardando los rangos de las dimensiones de la hoja y si es hijo de izq o der.
+    Se recorre los rangos de cada dimensión:
+        Si el minimo guardado existe en el dato del nodo actual o en el rango del otro hijo, se omite.
+        Sino, se reemplaza el valor del rango actual con el menor entre el valor del nodo actual y el rango del otro hijo.
+
+        Si el maximo guardado existe en el dato del nodo actual o en el rango del otro hijo, se omite.
+        Sino, se reemplaza el valor del rango actual con el mayor entre el valor del nodo actual y el rango del otro hijo.
+
+    se avanza hacia el padre y se repite el proceso.
 
 
 hay que probar distintas inserciones, todas las posibilidades que puedan existir
 hay que probar eliminación, búsqueda e inserción, para así comprobar que no se rompe nada
+

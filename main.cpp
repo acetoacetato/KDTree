@@ -42,13 +42,30 @@ int main(){
         else
             std::cout << "Not Found" << std::endl;
     }
+
+    cout << "Se prueba buscar algo que no existe" << endl << "\t";
     float testing[] = {3,3,3};
     Punto<3>* pto = arbolito->buscar(testing);
     
-    std::cout << ((pto)? "Found":"Not Found") << std::endl;
+    std::cout << ((pto)? "\tFound":"\tNot Found") << std::endl;
 
     std::cout << "\nEl arbol: " << std::endl;;
 
     arbolito->mostrarArbol();
+
+    cout << "Ahora se procede a eliminar el punto " << puntos[3][0] << ", "<< puntos[3][1] << ", " << puntos[3][2] << endl;
+    arbolito->eliminar(puntos[7]);
+    cout << "Supuestamente se elimino" << endl;
+
+    cout << "Ahora se procede a buscar el punto" << puntos[3][0] << ", "<< puntos[3][1] << ", " << puntos[3][2] << endl;
+    pto = arbolito->buscar(puntos[7]);
+    std::cout << ((pto)? "Found":"Not Found") << std::endl;
+
+    cout << "Ahora se procede a buscar el punto" << puntos[7][0] << ", "<< puntos[7][1] << ", " << puntos[7][2] << endl;
+    pto = arbolito->buscar(puntos[3]);
+    std::cout << ((pto)? "Found":"Not Found") << std::endl;
+
+    arbolito->mostrarArbol();
+
 
 }
