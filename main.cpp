@@ -1,6 +1,10 @@
 #include "KDTreeRange.hpp"
 #include<iostream>
+
+
 using namespace KDTreeRange;
+
+void read_record();
 int main(){
     float puntos[][15] = {
                             {7, 2, 6},
@@ -68,4 +72,10 @@ int main(){
     arbolito->mostrarArbol();
 
 
+    arbolito = nullptr;
+
+    return 0;
+        
 }
+
+

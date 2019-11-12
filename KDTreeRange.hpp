@@ -466,17 +466,17 @@ namespace KDTreeRange{
         
         //punto->imprimePunto();
         //cout << endl;
-
+        int profundidad = 1;
         Node<k>* hijo = this;
         Node<k>* otroHijo = this;
-
+        
         Node<k>* aux = this;
         //Se asume que es un nodo no raiz
         bool esHijoDerecho = (aux->padre->right == this);
         do{
             hijo = aux;
             aux = aux->padre;
-
+            aux->profundidad = profundidad;
 
             if(esHijoDerecho){
                 otroHijo = aux->left;
@@ -533,7 +533,7 @@ namespace KDTreeRange{
             if(aux->padre != nullptr){
                 esHijoDerecho = (aux->padre->right == this);
             }
-            
+            profundidad++;
         }while(aux != final);
 
 
