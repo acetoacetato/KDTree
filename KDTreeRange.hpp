@@ -219,7 +219,6 @@ namespace KDTreeRange{
                         aux->padre = actual;
                         aux->updateAllRange(punto);
                         actualizarProfundidad(aux);
-                        cout << "Se inserta en izq"<< endl;
                         return;
                     }
 
@@ -294,7 +293,7 @@ namespace KDTreeRange{
 
     template<int k>
     Punto<k>* Node<k>::buscar(float punto[]){
-        cout << "Se busca: (" << punto[0] << ", " << punto[1] << ", " << punto[2] << ")" << endl;
+        //cout << "Se busca: (" << punto[0] << ", " << punto[1] << ", " << punto[2] << ")" << endl;
         int dimension = 0;
         Node* actual = this;
         Punto<k>* auxPunto;
