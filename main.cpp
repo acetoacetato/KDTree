@@ -30,6 +30,9 @@ int main(){
             std::cout << "Not Found (" << (numeros[i][0]) << ", " << (numeros[i][1]) << ", " << (numeros[i][2]) << ")" << std::endl;
     }
 
+    cout << arbolito->profundidad() << endl;
+
+    //return 0;
     cout << "Se prueba buscar algo que no existe" << endl << "\t";
     float testing[] = {3,3,3};
     Punto<3>* pto = arbolito->buscar(testing);
@@ -54,7 +57,7 @@ int main(){
 
     arbolito->mostrarArbol();
 
-
+   
     arbolito = nullptr;
 
     return 0;

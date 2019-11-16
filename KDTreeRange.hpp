@@ -4,14 +4,13 @@
 #include <iostream>
 #include <queue>
 
-
 using namespace std;
 namespace KDTreeRange{
 
     template<int k>
     class Punto{
         public:
-            float point [k];
+            std::vector<float> point;
 
             //Retorna el valor de la n-esima dimensión dado un iterador.
             float getVal(int);
@@ -42,7 +41,7 @@ namespace KDTreeRange{
     template<int k>
     Punto<k>::Punto(float punto[]){
         for(int i=0 ; i<k ; i++)
-            point[i] = punto[i];
+            point.push_back(punto[i]);
     }
 
 
@@ -472,15 +471,23 @@ namespace KDTreeRange{
         Node<k>* aux = this;
         //Se asume que es un nodo no raiz
         bool esHijoDerecho = (aux->padre->right == this);
+        //TODO: esto se debe hacer hasta el nodo padre o hasta el nodo raiz, si se sigue haciendo efectivo el cambio más arriba.
+        //  Hasta ahora lo hace hasta el nodo raiz, sacrificando eficiencia.
         do{
             hijo = aux;
             aux = aux->padre;
+
+            if(aux == nullptr){
+                return;
+            }
+
             aux->profundidad = profundidad;
+
+            
 
             if(esHijoDerecho){
                 otroHijo = aux->left;
             }else{
-                cout << "es hijo izq" << endl;
                 otroHijo = aux->right;
             }
             //Se actualiza el rango maximo y minimo de cada dimension
@@ -533,7 +540,7 @@ namespace KDTreeRange{
                 esHijoDerecho = (aux->padre->right == this);
             }
             profundidad++;
-        }while(aux != final);
+        }while(true);
 
 
     }
@@ -593,7 +600,7 @@ namespace KDTreeRange{
 
     template<int k>
     KDTree<k>::KDTree(){
-        float a[] = {0,0,0};
+        float a[k] = { 0 };
         Node<k>* n = new Node<k>(a);
         raiz = nullptr;
     }

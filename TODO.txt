@@ -20,6 +20,27 @@ Para actualizar
     se avanza hacia el padre y se repite el proceso.
 
 
+
+Para testearlo:
+    Tomar el arreglo completo de los puntos de prueba, elegir una cantidad aleatoria cercana a la mitad para dividir el arreglo.
+    Insertar la primera sección y comprobar que se encuentra todo lo que debería.
+    ir eliminando algunos de los insertados, junto con agregar otros que hayan quedado pendientes.
+    comprobar que los cambios funcionan
+    agregar los eliminados y eliminar la mitad
+    comprobar que funciona todo.
+    
+
+
+
+implementar funcion puntos dominados
+    recibe intervalos en cada dimension, retorna lista de puntos que están dentro del intervalo.
+
+transformar el punto a vector, en vez de arreglo
+el eliminar debe hacerlo hasta que llegue uno arriba del padre que no modifique el intervalo.
+implementar visualizador con links de wsp
+graficar tiempos de busqueda y de busqueda de intervalos con cantidad de puntos fija
+
+
 hay que probar distintas inserciones, todas las posibilidades que puedan existir
 hay que probar eliminación, búsqueda e inserción, para así comprobar que no se rompe nada
 
