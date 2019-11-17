@@ -31,8 +31,9 @@ int main(){
     }
 
     cout << arbolito->profundidad() << endl;
-
-    //return 0;
+    arbolito->mostrarArbol();
+    arbolito->toJson();
+    return 0;
     cout << "Se prueba buscar algo que no existe" << endl << "\t";
     float testing[] = {3,3,3};
     Punto<3>* pto = arbolito->buscar(testing);

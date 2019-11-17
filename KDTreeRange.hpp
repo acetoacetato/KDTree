@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <queue>
+#include <list>
+#include <fstream>
+#include<array>
+
 
 using namespace std;
 namespace KDTreeRange{
@@ -21,6 +25,7 @@ namespace KDTreeRange{
             int compareD(float[], int);
             Punto(float []);
             void imprimePunto();
+            string strPunto();
     };
 
 
@@ -56,6 +61,23 @@ namespace KDTreeRange{
             aux = true;
         }
         cout << ")" << endl;
+    }
+
+    template<int k>
+    string Punto<k>::strPunto(){
+        bool aux = false;
+        string str = "(";
+        for(int i=0 ; i<k ; i++){
+            if(aux){
+                str += ", ";
+            }
+            str += to_string(point[i]);
+            aux = true;
+        }
+        str += ")";
+
+
+        return str;
     }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +130,21 @@ namespace KDTreeRange{
             //Actualiza los rangos desde el mismo nodo hasta el nodo recibido. Asumiendo que el nodo actual se elimina.
             void actualizarRangos(Node<k>*);
 
+            //Imprime el arbol completo en formato json a un archivo recibido
+            void imprime(Node<k>*, ofstream& file);
+
+            //Retorna un string que contiene el punto en todas sus dimensiones
+            string strPunto();
+
+            //Retorna un string que contiene el punto del nodo padre en todas sus dimensiones
+            //  retorna -1 si no tiene padre.
+            string strPadre();
+
+            //Retorna un string que tiene, en formato json, todos los rangos que tiene el punto.
+            string strRangos();
+
+            //Retorna true si tiene al menos un hijo, false en caso contrario.
+            bool children();
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -268,7 +305,9 @@ namespace KDTreeRange{
 
         while(aux != nullptr){
             //Se actualiza la profundidad de cada nodo, hacia arriba.
-            aux->profundidad = contador;
+            // Solo en caso de que sea necesario, es decir, en caso de que su profundidad sea menor
+            if(aux->profundidad < contador)
+                aux->profundidad = contador;
             
             //se actualizan los rangos.
             for(int i=0 ; i<k ; i++){
@@ -459,6 +498,8 @@ namespace KDTreeRange{
 
     }
 
+
+    //TODO: es importante revisar en que casos se debe actualizar la profundidad, no es sólo reemplazar.
     template<int k>
     void Node<k>::actualizarRangos(Node<k>* final){
         
@@ -545,6 +586,75 @@ namespace KDTreeRange{
 
     }
 
+    //TODO: ajustar esto a lo que deberia ser
+    template<int k>
+    void Node<k>::imprime(Node<k>* node, ofstream& file){
+        //cout << node->strPunto();
+        file << "{ "<<endl;
+		file << "\ttext: { name: \"" << node->strPunto() << "\"},";
+		//file << "\t \"parent\":\"" << node->strPadre() << "\",";
+		//file << "\t \"depth\":\"" << node->profundidad << "\",";
+        //file << "\t\"ranges\":" << node->strRangos() << endl;
+
+
+		if(node->children()){
+			file << "\tchildren: [" << endl;
+
+			if(node->left != nullptr){
+                imprime(node->left, file);
+            }
+                
+            if(node->right != nullptr){
+                if(node->left != nullptr)
+                    file << ",";
+                imprime(node->right, file);
+            }
+                
+            
+			file << "]";
+		}
+		file << "}" << endl;
+    }
+
+    //Retorna un string que contiene el punto en todas sus dimensiones
+    template<int k>
+    string Node<k>::strPunto(){
+        //cout << punto->strPunto();
+        //cout << punto->point[0];
+        return punto->strPunto();
+    }
+
+    //Retorna un string que contiene el punto del nodo padre en todas sus dimensiones
+    //  retorna -1 si no tiene padre.
+    template<int k>
+    string Node<k>::strPadre(){
+        return (this->padre)? this->padre->strPunto():"-1";
+    }
+
+    //Retorna un string que tiene, en formato json, todos los rangos que tiene el punto.
+    template<int k>
+    string Node<k>::strRangos(){
+        string str = "\"";
+        for(int i=0 ; i<k ; i++){
+            str += "[";
+            str += to_string(this->rango[i][0]);
+            str += ", ";
+            str += to_string(this->rango[i][1]);
+            str += "]; ";
+        }
+
+        str += "\"";
+        return str;
+    }
+
+    template<int k>
+    bool Node<k>::children(){
+        if(this->left != nullptr || this->right != nullptr)
+            return true;
+        return false;
+    }
+
+
     template<int k>
     void Node<k>::printTreeR(queue<Node<k>*> queue){
         Node<k>* nodo = queue.front();
@@ -595,6 +705,7 @@ namespace KDTreeRange{
             void mostrarArbol();
             Punto<k>* buscar(float[]);
             Punto<k>* eliminar(float[]);
+            void toJson();
 
     };
 
@@ -646,6 +757,18 @@ namespace KDTreeRange{
             raiz = nullptr;
         }
         return nodo->punto;
+    }
+
+    template<int k>
+    void KDTree<k>::toJson(){
+        ofstream myfile( "arbolito.json");
+        myfile << "{" << endl;
+        myfile << "\tchart: {" << endl;
+        myfile << "\t\tcontainer: \"#tree_simple\"" << endl;
+        myfile << "\t}," << endl;
+        myfile << "\tnodeStructure: ";
+
+        raiz->imprime(raiz, myfile);
     }
 }
 

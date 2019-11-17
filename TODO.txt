@@ -44,3 +44,11 @@ graficar tiempos de busqueda y de busqueda de intervalos con cantidad de puntos 
 hay que probar distintas inserciones, todas las posibilidades que puedan existir
 hay que probar eliminación, búsqueda e inserción, para así comprobar que no se rompe nada
 
+
+
+
+funciones para nodo
+    StrPunto
+    StrPadre, si no existe -1
+    getChildren
+    StrRangos
