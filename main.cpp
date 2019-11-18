@@ -2,6 +2,7 @@
 #include "KDTree.hpp"
 #include<iostream>
 #include<chrono>
+#include <string>
 
 //Librerias de c
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 
 
 using namespace KDTreeRange;
+using namespace std;
 
 std::vector<float> generaPunto(int dim){
     
@@ -23,65 +25,65 @@ std::vector<float> generaPunto(int dim){
     return numero;
 } 
 
-int main(){
+
+
+
+int main(int argc, char** argv){
     srand(time(NULL));    
-    int MAX_NUM = 110000;
-    std::vector<float> numerillos[MAX_NUM];
-    for(long int i=0 ; i<MAX_NUM ; i++){
-        std::vector<float> numero = generaPunto(3);
-        numerillos[i] = numero;
-    }
+    int MAX_NUM = (argc > 0)? atoi(argv[1]):1000;
+
+    cout << MAX_NUM << endl;
+    std::vector<float> numerillo = generaPunto(3);
+    std::vector<std::vector<float>> numeros;
+    numeros.push_back(numerillo);
     
+    std::ofstream fileAntiguo, fileNuevo;
+    fileAntiguo.open("Antiguo.txt", std::ios_base::app);
+    fileNuevo.open("Nuevo.txt", std::ios_base::app);
+
+    fileAntiguo << "Cantidad: " << MAX_NUM << endl;
+    fileNuevo << "Cantidad: " << MAX_NUM << endl;
 
     //Se inicializa el arbol con 3 dimensiones.
     KDTreeR<3>* arbolito = new KDTreeR<3>();
-    auto numero = numerillos[0];
     //return 0;
-    KDTree::Node<3>* arbolNormal = KDTree::insertar<3>(numerillos[0]);
+    KDTree::Node<3>* arbolNormal = KDTree::insertar<3>(numerillo);
     //Para que partan en igual de condiciones.
-    arbolito->insertar(numerillos[0]);
+    arbolito->insertar(numerillo);
     
 
-    // Record start time
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(long int i = 1 ; i<MAX_NUM ; i++)
-        arbolito->insertar(numerillos[i]);
-
-    // Record end time
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    std::chrono::duration<double> elapsed = finish - start;
-
-    std::cout << "tiempo nuevo: " << elapsed.count() << " s\n";
-    ////////////////////
-    start = std::chrono::high_resolution_clock::now();
-    for(long int i = 1 ; i<MAX_NUM ; i++)
-        arbolNormal->insertar(numerillos[i]);
     
-    finish = std::chrono::high_resolution_clock::now();
-    elapsed = finish - start;
-    std::cout << "tiempo antiguo: " << elapsed.count() << " s\n";
 
-    //std::cout << "Profundidad: " << arbolito->profundidad() << std::endl;;
+    for(long int i = 1 ; i<MAX_NUM ; i++){
+        numerillo = generaPunto(3);
+        numeros.push_back(numerillo);
+        arbolito->insertar(numerillo);
+        arbolNormal->insertar(numerillo);
+    }
+        
+        
+    cout << "Termina de insertar, ahora comienza a buscar" << endl;
+
+
     
 
     //Pasa por todos los puntos insertados e imprime si hay alguno que no se encuentre.
-    start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     for(int i=MAX_NUM-1 ; i>=0 ; i--){
-        Punto<3>* pto = arbolito->buscar(numerillos[i]);
+        Punto<3>* pto = arbolito->buscar(numeros[i]);
     }
-    finish = std::chrono::high_resolution_clock::now();
-    elapsed = finish - start;
-    std::cout << "tiempo busqueda nuevo: " << elapsed.count() << " s\n";
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto elapsed = finish - start;
+
+    fileNuevo << "\ttiempo búsqueda: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
 
     start = std::chrono::high_resolution_clock::now();
     for(int i=MAX_NUM-1 ; i>=0 ; i--){
-        arbolNormal->buscar(numerillos[i]);
+        arbolNormal->buscar(numeros[i]);
     }
     finish = std::chrono::high_resolution_clock::now();
-    elapsed = finish - start;
-    std::cout << "tiempo busqueda antiguo: " << elapsed.count() << " s\n";
+    elapsed = start - finish;
+    fileAntiguo << "\ttiempo búsqueda: " << chrono::duration_cast<chrono::milliseconds>(finish - start).count() << endl;
 
     //cout << arbolito->profundidad() << endl;
     //arbolito->mostrarArbol();
