@@ -1,17 +1,17 @@
 #include <iostream>
-
+#include<vector>
 using namespace std;
 namespace KDTree{
 
 template<int k>
 class Punto{
     public:
-        float point [k];
+        std::vector<float> point;
 
         //Retorna el valor de la n-esima dimensión dado un iterador.
         float getVal(int);
-        bool compare(float []);
-        Punto(float []);
+        bool compare(std::vector<float>);
+        Punto(std::vector<float>);
 };
 
 template<int k>
@@ -20,7 +20,7 @@ float Punto<k>::getVal(int dim){
 }
 
 template<int k>
-bool Punto<k>::compare(float punto[]){
+bool Punto<k>::compare(std::vector<float> punto){
     for(int i=0 ; i<k ; i++){
         if(this->point[i] != punto[i])
             return false;
@@ -29,9 +29,9 @@ bool Punto<k>::compare(float punto[]){
 }
 
 template<int k>
-Punto<k>::Punto(float puntos[]){
+Punto<k>::Punto(std::vector<float> puntos){
     for(int i=0 ; i<k ; i++)
-        point[i] = puntos[i];
+        point.push_back(puntos[i]);
 }
 
 
@@ -40,52 +40,67 @@ template<int k>
 class Node{
     public:
         Punto<k> *punto;
-        Node<k> *left, *right;
+        Node<k> *left, *right, *padre;
+        int profundidad;
         //Constructor
-        Node(float []);
+        Node(std::vector<float>);
 
-        void insertar(float []);
-        Punto<k>* buscar(float []);
+        void actualizarProfundidad();
+        void insertar(std::vector<float>);
+        Punto<k>* buscar(std::vector<float>);
 };
 
 template<int k>
-Node<k>::Node(float puntos[]){
+Node<k>::Node(std::vector<float> puntos){
 
     punto = new Punto<k>(puntos);
+    profundidad = 0;
     //Se reinician los nodos hijos
     left = nullptr;
     right = nullptr;
+    padre = nullptr;
 
 }
 
 template<int k>
-void Node<k>::insertar(float puntos[]){
-    cout << "Se inserta" << puntos[0]  << ", " << puntos[1] << ", " << puntos[2] << endl;
+void Node<k>::actualizarProfundidad(){
+    int profundidad = 1;
+    Node<k>* actual = this;
+    while(actual != nullptr){
+        if(actual->profundidad < profundidad)
+            actual->profundidad = profundidad;
+
+        profundidad++;
+        actual = actual->padre;
+    }
+}
+
+template<int k>
+void Node<k>::insertar(std::vector<float> puntos){
     bool insertado = false;
     int dimension = 0;
     Node<k> *actual = this;
     Node<k>* aux = new Node(puntos);
     while(!insertado){
-        cout << "Dimension " << dimension << endl;
         Punto<k> punto = *actual->punto;
         if( punto.getVal(dimension) < puntos[dimension]){
             
-            cout << "derecha" << endl;
 
             //se inserta en la derecha
             if(actual->right == nullptr){
                 actual->right = aux;
+                aux->padre = actual;
+                aux->actualizarProfundidad();
                 return;
             }
             actual = actual->right;
         } else{
-            
-            
-            cout << "izquierda" << endl;
+
             if(actual->left == nullptr){
                 actual->left = aux;
                 aux->left =nullptr;
-
+                aux->padre = actual;
+                aux->actualizarProfundidad();
                 return;
             }
 
@@ -100,10 +115,10 @@ void Node<k>::insertar(float puntos[]){
 }
 
 template<int k>
-Punto<k>* Node<k>::buscar(float punto[]){
+Punto<k>* Node<k>::buscar(std::vector<float> punto){
     int dimension = 0;
-    Node* actual = this;
-    Punto* auxPunto;
+    Node<k>* actual = this;
+    Punto<k>* auxPunto;
     while(actual != nullptr){
         auxPunto = actual->punto;
         if(auxPunto->compare(punto))
@@ -121,7 +136,7 @@ Punto<k>* Node<k>::buscar(float punto[]){
 }
 
 template<int k>
-Node<k>* insertar(float puntos[], Node<k>* kdtree = nullptr){
+Node<k>* insertar(std::vector<float> puntos, Node<k>* kdtree = nullptr){
     if(kdtree == nullptr)
         return new Node<k>(puntos);
     kdtree->insertar(puntos);
@@ -129,3 +144,4 @@ Node<k>* insertar(float puntos[], Node<k>* kdtree = nullptr){
 }
 
 }
+

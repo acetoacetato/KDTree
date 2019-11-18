@@ -22,8 +22,8 @@ namespace KDTreeRange{
             //      -1 si el pto recibido es menor
             //       0 si el pto recibido es igual
             //       1 si el pto recibido es mayor 
-            int compareD(float[], int);
-            Punto(float []);
+            int compareD(std::vector<float>, int);
+            Punto(std::vector<float>);
             void imprimePunto();
             string strPunto();
     };
@@ -35,7 +35,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    int Punto<k>::compareD(float punto[], int dimension){
+    int Punto<k>::compareD(std::vector<float> punto, int dimension){
         if(point[dimension] > punto[dimension])
             return -1;
         if(point[dimension] < punto[dimension])
@@ -44,7 +44,7 @@ namespace KDTreeRange{
             return 0;
     }
     template<int k>
-    Punto<k>::Punto(float punto[]){
+    Punto<k>::Punto(std::vector<float> punto){
         for(int i=0 ; i<k ; i++)
             point.push_back(punto[i]);
     }
@@ -98,34 +98,34 @@ namespace KDTreeRange{
             Node *left, *right, *padre;
 
             //Constructor
-            Node(float []);
+            Node(std::vector<float>);
 
             //Convierte todos los rangos del nodo en el punto.
-            void updateAllRange(float[]);
+            void updateAllRange(std::vector<float>);
 
             //Actualiza el rango de una dimensión respecto al punto propio del nodo.
             void updateRange(int);
 
             //Inserta un punto en el árbol.
-            void insertar(float []);
+            void insertar(std::vector<float>);
 
             //Actualiza la profundidad y los rangos de los nodos que contienen el nodo ingresado.
             void actualizarProfundidad(Node<k>*);
 
             //Busca un punto en el árbol.
-            Punto<k>* buscar(float []);
+            Punto<k>* buscar(std::vector<float>);
 
             //Compara el rango del nodo con un punto ingresado, en una dimensión ingresada.
-            int compareR(float[], int);
+            int compareR(std::vector<float>, int);
 
             //Compara el punto del nodo con el punto ingresado, retorna true si son iguales, false en caso contrario.
-            bool compare(float []);
+            bool compare(std::vector<float>);
 
             //Imprime el árbol completo, mostrando los rangos, el nodo padre y de que lado está con respecto a este.
             void printTree();
 
             //Elimina el punto, retornandolo en caso de existir.
-            Node<k>* eliminar(float[]);
+            Node<k>* eliminar(std::vector<float>);
 
             //Actualiza los rangos desde el mismo nodo hasta el nodo recibido. Asumiendo que el nodo actual se elimina.
             void actualizarRangos(Node<k>*);
@@ -150,7 +150,7 @@ namespace KDTreeRange{
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
                 void printTreeR(queue<Node*>);
                 //Busca y retorna el nodo que contenga el punto ingresado por parámetro o null en caso contrario.
-                Node<k>* buscarN(float []);
+                Node<k>* buscarN(std::vector<float>);
 
                 
 
@@ -159,7 +159,7 @@ namespace KDTreeRange{
 
 
     template<int k>
-    Node<k>::Node(float punto_[]){
+    Node<k>::Node(std::vector<float> punto_){
 
         punto = new Punto<k>(punto_);
         profundidad = 0;
@@ -170,7 +170,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    void Node<k>::updateAllRange(float punto[]){
+    void Node<k>::updateAllRange(std::vector<float> punto){
         for(int i=0 ; i < k ; i++){
             rango[i][0] = punto[i];
             rango[i][1] = punto[i];
@@ -185,7 +185,7 @@ namespace KDTreeRange{
 
 
     template<int k>
-    void Node<k>::insertar(float punto[]){
+    void Node<k>::insertar(std::vector<float> punto){
         bool insertado = false;
         int dimension = 0;
         Node *actual = this;
@@ -237,8 +237,8 @@ namespace KDTreeRange{
                         }
                     }
 
-                    //En caso de que el valor del punto a insertar y el del punto actual sea el mismo en la dimensión
-                    //Se le inserta en el nodo de menor profundidad.
+                    //En caso de que el valor del punto a insertar y el del punto actual sea el mismo en la dimensión,
+                    //  se le inserta en el nodo de menor profundidad.
 
                     //Si el nodo derecho es nulo, es el de menor profundidad
                     if(actual->right == nullptr){
@@ -262,19 +262,41 @@ namespace KDTreeRange{
                     //En caso de que ninguno sea nulo, se comparan las profundidades 
                     //  y se va hacia el sub arbol menos profundo.
 
+                    //TODO: priorizar también el aumentar lo menos posible el rango del sub árbol.
+                    
+
                     //Si ambos tienen la misma profundidad, se comparan los puntos en la dimensión.
                     if(actual->right->profundidad == actual->left->profundidad){
 
-                        //si es menor al punto, se va a la izq
-                        //En cualquier otro caso, a la derecha
-                        if(punto_.compareD(punto, dimension) == -1){
-                            actual = actual->left;
-                        }else{
+                        //TODO: probar priorizando primero la menor profundidad y luego el del menor rango, para 
+                        //          comparar tiempos de búsqueda.
+
+                        // Variables para comparar que tanto se agranda el rango al insertarlo en un sub-árbol u otro.
+                        int difRangoR = actual->right->rango[dimension][0] - punto[dimension];
+                        int difRangoL = punto[dimension] - actual->left->rango[dimension][1];
+
+                        //Si hay menor diferencia en la derecha, se inserta ahí
+                        if(difRangoL > difRangoR){
                             actual = actual->right;
+                            break;
                         }
 
-                        dimension = (dimension + 1) % k;
-                        continue;
+                        //Si hay menor diferencia en la izquierda, se inserta ahí
+                        if(difRangoL < difRangoR){
+                            actual = actual->left;
+                            break;
+                        }
+                        
+                        // Si ambas diferencias son iguales, se compara con el punto
+                        // si es menor al punto, se va a la izq
+                        // En cualquier otro caso, a la derecha
+                        if(punto_.compareD(punto, dimension) == -1){
+                            actual = actual->left;
+                            break;
+                        }else{
+                            actual = actual->right;
+                            break;
+                        }
                     }
 
                     //Si la derecha es menos profunda, se va para allá
@@ -330,7 +352,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    Punto<k>* Node<k>::buscar(float punto[]){
+    Punto<k>* Node<k>::buscar(std::vector<float> punto){
         //cout << "Se busca: (" << punto[0] << ", " << punto[1] << ", " << punto[2] << ")" << endl;
         int dimension = 0;
         Node* actual = this;
@@ -364,7 +386,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    int Node<k>::compareR(float val[], int dimension){
+    int Node<k>::compareR(std::vector<float> val, int dimension){
         
         if(left != nullptr && (left->rango[dimension][1] >= val[dimension])){
             return -1;
@@ -377,7 +399,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    bool Node<k>::compare(float val[]){
+    bool Node<k>::compare(std::vector<float> val){
         for(int i=0 ; i<k ; i++){
             if(punto->point[i] != val[i]){
                 return false;
@@ -389,7 +411,7 @@ namespace KDTreeRange{
 
 
     template<int k>
-    Node<k>* Node<k>::buscarN(float punto[]){
+    Node<k>* Node<k>::buscarN(std::vector<float> punto){
 
         int dimension = 0;
         Node* actual = this;
@@ -432,7 +454,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    Node<k>* Node<k>::eliminar(float punto[]){
+    Node<k>* Node<k>::eliminar(std::vector<float> punto){
         //Buscar el nodo a eliminar
         Node<k>* nodo = buscarN(punto);
         Node<k>* nodoAux = nodo;
@@ -693,36 +715,36 @@ namespace KDTreeRange{
 
 
     template <int k>
-    class KDTree{
+    class KDTreeR{
         private:
             Node<k>* raiz;
         public:        
-            KDTree();
+            KDTreeR();
             int profundidad();
-            Node<k>* insertar(float []);
+            Node<k>* insertar(std::vector<float>);
             void mostrarArbol();
-            Punto<k>* buscar(float[]);
-            Punto<k>* eliminar(float[]);
+            Punto<k>* buscar(std::vector<float>);
+            Punto<k>* eliminar(std::vector<float>);
             void toJson();
 
     };
 
     template<int k>
-    KDTree<k>::KDTree(){
-        float a[k] = { 0 };
+    KDTreeR<k>::KDTreeR(){
+        std::vector<float> a = { 0 };
         Node<k>* n = new Node<k>(a);
         raiz = nullptr;
     }
 
     template<int k>
-    int KDTree<k>::profundidad(){
+    int KDTreeR<k>::profundidad(){
         if(raiz == nullptr)
             return 0;
         return raiz->profundidad;
     }
 
     template<int k>
-    Node<k>* KDTree<k>::insertar(float punto[]){
+    Node<k>* KDTreeR<k>::insertar(std::vector<float> punto){
         if(raiz == nullptr){
             Node<k>* nodo = new Node<k>(punto);
             nodo->updateAllRange(punto);
@@ -736,18 +758,18 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    void KDTree<k>::mostrarArbol(){
+    void KDTreeR<k>::mostrarArbol(){
         raiz->printTree();
         return;
     }
 
     template<int k>
-    Punto<k>* KDTree<k>::buscar(float punto[]){
+    Punto<k>* KDTreeR<k>::buscar(std::vector<float> punto){
         return raiz->buscar(punto);
     }
 
     template<int k>
-    Punto<k>* KDTree<k>::eliminar(float punto[]){
+    Punto<k>* KDTreeR<k>::eliminar(std::vector<float> punto){
         if(raiz == nullptr)
             return nullptr;
         Node<k>* nodo = raiz->eliminar(punto);
@@ -758,7 +780,7 @@ namespace KDTreeRange{
     }
 
     template<int k>
-    void KDTree<k>::toJson(){
+    void KDTreeR<k>::toJson(){
         ofstream myfile( "arbolito.json");
         myfile << "{" << endl;
         myfile << "\tchart: {" << endl;
