@@ -503,8 +503,6 @@ namespace KDTreeRange{
     template<int k>
     void Node<k>::actualizarRangos(Node<k>* final){
         
-        //punto->imprimePunto();
-        //cout << endl;
         int profundidad = 1;
         Node<k>* hijo = this;
         Node<k>* otroHijo = this;

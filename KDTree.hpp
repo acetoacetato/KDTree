@@ -1,10 +1,9 @@
 #include <iostream>
-const int k = 3;
 
 using namespace std;
 namespace KDTree{
 
-
+template<int k>
 class Punto{
     public:
         float point [k];
@@ -15,11 +14,13 @@ class Punto{
         Punto(float []);
 };
 
-float Punto::getVal(int dim){
+template<int k>
+float Punto<k>::getVal(int dim){
     return point[dim];
 }
 
-bool Punto::compare(float punto[]){
+template<int k>
+bool Punto<k>::compare(float punto[]){
     for(int i=0 ; i<k ; i++){
         if(this->point[i] != punto[i])
             return false;
@@ -27,43 +28,46 @@ bool Punto::compare(float punto[]){
     return true;
 }
 
-Punto::Punto(float puntos[]){
+template<int k>
+Punto<k>::Punto(float puntos[]){
     for(int i=0 ; i<k ; i++)
         point[i] = puntos[i];
 }
 
 
 
-
+template<int k>
 class Node{
     public:
-        Punto *punto;
-        Node *left, *right;
+        Punto<k> *punto;
+        Node<k> *left, *right;
         //Constructor
         Node(float []);
 
         void insertar(float []);
-        Punto* buscar(float []);
+        Punto<k>* buscar(float []);
 };
 
-Node::Node(float puntos[]){
+template<int k>
+Node<k>::Node(float puntos[]){
 
-    punto = new Punto(puntos);
+    punto = new Punto<k>(puntos);
     //Se reinician los nodos hijos
     left = nullptr;
     right = nullptr;
 
 }
 
-void Node::insertar(float puntos[]){
+template<int k>
+void Node<k>::insertar(float puntos[]){
     cout << "Se inserta" << puntos[0]  << ", " << puntos[1] << ", " << puntos[2] << endl;
     bool insertado = false;
     int dimension = 0;
-    Node *actual = this;
-    Node* aux = new Node(puntos);
+    Node<k> *actual = this;
+    Node<k>* aux = new Node(puntos);
     while(!insertado){
         cout << "Dimension " << dimension << endl;
-        Punto punto = *actual->punto;
+        Punto<k> punto = *actual->punto;
         if( punto.getVal(dimension) < puntos[dimension]){
             
             cout << "derecha" << endl;
@@ -95,7 +99,8 @@ void Node::insertar(float puntos[]){
 
 }
 
-Punto* Node::buscar(float punto[]){
+template<int k>
+Punto<k>* Node<k>::buscar(float punto[]){
     int dimension = 0;
     Node* actual = this;
     Punto* auxPunto;
@@ -115,10 +120,10 @@ Punto* Node::buscar(float punto[]){
     return nullptr;
 }
 
-
-Node* insertar(float puntos[], Node* kdtree = nullptr){
+template<int k>
+Node<k>* insertar(float puntos[], Node<k>* kdtree = nullptr){
     if(kdtree == nullptr)
-        return new Node(puntos);
+        return new Node<k>(puntos);
     kdtree->insertar(puntos);
     return kdtree;
 }
