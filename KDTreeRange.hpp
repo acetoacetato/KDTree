@@ -145,6 +145,10 @@ namespace KDTreeRange{
 
             //Retorna true si tiene al menos un hijo, false en caso contrario.
             bool children();
+            
+            //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado
+            bool noDominado(std::vector<float>);
+            
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -709,6 +713,17 @@ namespace KDTreeRange{
 
         printTreeR(queue);
     }
+    
+    template<int k>
+    bool noDominado(std::vector<float> point){
+      for(int i=0; i<k; i++){ 
+        if(punto->point[i] < point[i]){
+          return true;
+        }
+      }
+      return false;
+    }
+    
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -726,6 +741,7 @@ namespace KDTreeRange{
             Punto<k>* buscar(std::vector<float>);
             Punto<k>* eliminar(std::vector<float>);
             void toJson();
+            list puntosNoDominados(std::vector<float>);
 
     };
 
@@ -790,6 +806,29 @@ namespace KDTreeRange{
 
         raiz->imprime(raiz, myfile);
     }
+    
+    template<int k>
+    list puntosNoDominados(std::vector<float>punto){
+      std::queue <Node<k>*> q;
+      std::list <Node<k>*> l;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front()
+        if(actual.noDominado(punto)){
+          l.push_back(actual);
+        }
+        if(actual->left != nullptr){
+          q.push(actual->left);
+        if(actual->right != nullptr){
+          q.push(actual->right);
+        q.pop()
+      }
+      
+      return l;
+    
+    }
+    
+    
 }
 
 #endif
