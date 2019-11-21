@@ -146,7 +146,7 @@ namespace KDTreeRange{
             //Retorna true si tiene al menos un hijo, false en caso contrario.
             bool children();
             
-            //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado
+            //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado )
             bool noDominado(std::vector<float>);
             
 
@@ -724,6 +724,17 @@ namespace KDTreeRange{
       return false;
     }
     
+    template<int k>
+    bool rangoNoDominado(std::vector<float> point){
+      for(int i=0; i<k; i++){ 
+        if(rango[i][0] < point[i]){
+          return true;
+        }
+      }
+      return false
+    
+    }
+    
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -817,9 +828,9 @@ namespace KDTreeRange{
         if(actual.noDominado(punto)){
           l.push_back(actual);
         }
-        if(actual->left != nullptr){
+        if(actual->left != nullptr && actual->left.rangoNoDominado(punto)){
           q.push(actual->left);
-        if(actual->right != nullptr){
+        if(actual->right != nullptr && actual->right.rangoNoDominado(punto)){
           q.push(actual->right);
         q.pop()
       }
