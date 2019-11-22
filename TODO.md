@@ -48,3 +48,5 @@
 
 - [ ] Para las inserciones: considerar que tanto se modifica el rango al hacer la inserción en el sub arbol de la izquierda o de la derecha.
 - [ ] Para medir tiempos, hacerlo con el promedio de búsqueda de todos los datos de los árboles, mostrar la desv est tmbn.
+
+  

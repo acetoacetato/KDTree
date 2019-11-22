@@ -30,7 +30,7 @@ std::vector<float> generaPunto(int dim){
 
 int main(int argc, char** argv){
     srand(time(NULL));    
-    int MAX_NUM = (argc > 0)? atoi(argv[1]):1000;
+    int MAX_NUM = (argc > 1)? atoi(argv[1]):1000;
 
     cout << MAX_NUM << endl;
     std::vector<float> numerillo = generaPunto(3);
@@ -91,7 +91,21 @@ int main(int argc, char** argv){
 
     std::cout << "Profundidad del nuevo: " << arbolito->profundidad() << std::endl;;
     std::cout << "Profundidad del antiguo: " << arbolNormal->profundidad << std::endl;;
+    cout << "aaa"<< endl;
+    
+    int numerote = rand() % MAX_NUM;
+    cout << "aaa"<< endl;
+    list<Node<3>*> l = arbolito->puntosNoDominados(numeros[numerote]);
 
+    cout << "aaa"<< endl;
+    Punto<3>* p = arbolito->buscar(numeros[numerote]);
+
+    cout << "No nominados por ";
+    p->imprimePunto();
+    cout << endl;
+    for(auto nodo : l){
+        cout << nodo->strPunto() << endl;
+    }
 
     return 0;
         

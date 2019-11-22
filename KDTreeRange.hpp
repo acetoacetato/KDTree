@@ -148,6 +148,9 @@ namespace KDTreeRange{
             
             //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado )
             bool noDominado(std::vector<float>);
+
+            //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado )
+            bool rangoNoDominado(std::vector<float>);
             
 
             private:
@@ -715,7 +718,7 @@ namespace KDTreeRange{
     }
     
     template<int k>
-    bool noDominado(std::vector<float> point){
+    bool Node<k>::noDominado(std::vector<float> point){
       for(int i=0; i<k; i++){ 
         if(punto->point[i] < point[i]){
           return true;
@@ -725,13 +728,13 @@ namespace KDTreeRange{
     }
     
     template<int k>
-    bool rangoNoDominado(std::vector<float> point){
+    bool Node<k>::rangoNoDominado(std::vector<float> point){
       for(int i=0; i<k; i++){ 
         if(rango[i][0] < point[i]){
           return true;
         }
       }
-      return false
+      return false;
     
     }
     
@@ -752,7 +755,7 @@ namespace KDTreeRange{
             Punto<k>* buscar(std::vector<float>);
             Punto<k>* eliminar(std::vector<float>);
             void toJson();
-            list puntosNoDominados(std::vector<float>);
+            list<Node<k>*> puntosNoDominados(std::vector<float>);
 
     };
 
@@ -819,20 +822,20 @@ namespace KDTreeRange{
     }
     
     template<int k>
-    list puntosNoDominados(std::vector<float>punto){
+    list<Node<k>*> KDTreeR<k>::puntosNoDominados(std::vector<float>punto){
       std::queue <Node<k>*> q;
       std::list <Node<k>*> l;
       q.push(raiz);
       while(!q.empty()){
-        Node<k>* actual=q.front()
-        if(actual.noDominado(punto)){
+        Node<k>* actual=q.front();
+        if(actual->noDominado(punto)){
           l.push_back(actual);
         }
-        if(actual->left != nullptr && actual->left.rangoNoDominado(punto)){
+        if(actual->left != nullptr && actual->left->rangoNoDominado(punto))
           q.push(actual->left);
-        if(actual->right != nullptr && actual->right.rangoNoDominado(punto)){
+        if(actual->right != nullptr && actual->right->rangoNoDominado(punto))
           q.push(actual->right);
-        q.pop()
+        q.pop();
       }
       
       return l;
