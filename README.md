@@ -38,6 +38,6 @@ En este último caso, se realizan las siguientes comprobaciones:
 
 Este es parecido en reglas a la primera versión, pero se diferencia en que la dimensión a comparar en cada nivel se elige al momento de que se inserte un nodo faltante (izquierda o derecha), intentando separar lo más posible los rangos. De esta manera se permite flexibilizar aún más la inserción dentro de esta estructura.
 
-![insercion2](Figuras/KD-Tree2-Insercion.png)
+![insercion2](Figuras/KD-Tree2-insercion.png)
 
 Gracias a esta regla evitamos aún más que aumente la profundidad del árbol, ya que de lo contrario se hubiera insertado en el sub árbol derecho.
