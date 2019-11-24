@@ -49,4 +49,14 @@
 - [ ] Para las inserciones: considerar que tanto se modifica el rango al hacer la inserción en el sub arbol de la izquierda o de la derecha.
 - [ ] Para medir tiempos, hacerlo con el promedio de búsqueda de todos los datos de los árboles, mostrar la desv est tmbn.
 
-  
+## Para nuevo KD-Tree
+
+- [x] Cada nodo ahora tendrá una variable para guardar en qué dimensión se hace la disjunción.
+- [ ] La disjunción se hace por la dimensión más disjunta.
+  - Si es nodo hoja, se usa la regla del KD-Tree normal.
+  - Si tiene un sólo hijo, se verifica si el punto tiene al menos una dimensión disjunta con ese hijo.
+    - Se selecciona la que tenga los rangos más disjuntos.
+  - Si tiene 2 hijos, se verifica si está contenido en alguno de los rangos (cajas, es decir, en todas las dimensiones debe estar contenido).
+  - Si no lo está, se selecciona el que tenga menor profundidad.
+  - Si tienen la misma profundidad, se selecciona el que tenga más rangos contenidos (o menos, testear eso).
+  - Si se iguala la cantidad de rangos, entonces se selecciona la menor distancia entre rangos.
