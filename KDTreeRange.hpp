@@ -152,6 +152,13 @@ namespace KDTreeRange{
             //Retorna true si el punto no esta dominado con respecto al punto ingresado ( si en alguna de las dimensiones el punto actual es menor al ingresado )
             bool rangoNoDominado(std::vector<float>);
             
+            
+            //Retorna true si el punto se encuentra en una caja representada por el punto menor y el punto mayor
+            bool insideBox(std::vector<float> , std::vector<float>);
+            
+            //Retorna true si el rango del subarbol contiene alguna seccion en la caja
+            bool rangeInsideBox(std::vector<float> , std::vector<float>);
+            
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -738,6 +745,26 @@ namespace KDTreeRange{
     
     }
     
+    template<int k>
+    bool Node<k>::insideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((punto->point[i] < menor[i]) || (punto->point[i] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    template<int k>
+    bool Node<k>::rangeInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((rango[i][1] < menor[i]) || (rango[i][0] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -756,6 +783,7 @@ namespace KDTreeRange{
             Punto<k>* eliminar(std::vector<float>);
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
+            list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
 
     };
 
@@ -840,6 +868,26 @@ namespace KDTreeRange{
       
       return l;
     
+    }
+    
+    template<int k>
+    list<Node<k>*> KDTreeR<k>::puntosInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      std::queue <Node<k>*> q;
+      std::list <Node<k>*> l;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front();
+        if(actual->insideBox(menor,mayor){
+          l.push_back(actual);
+        }
+        if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor))
+          q.push(actual->left);
+        if(actual->right != nullptr && actual->right->rangeInsideBox(menor,mayor))
+          q.push(actual->right);
+        q.pop();
+      }
+      
+      return l;
     }
     
     
