@@ -60,3 +60,13 @@
   - Si no lo está, se selecciona el que tenga menor profundidad.
   - Si tienen la misma profundidad, se selecciona el que tenga más rangos contenidos (o menos, testear eso).
   - Si se iguala la cantidad de rangos, entonces se selecciona la menor distancia entre rangos.
+- [x] Que al insertar con un hijo nodo se evalue el cambiar al hijo de izq a der o viceversa, para poder así insertar en un nodo nulo casi siempre.
+- [ ] Los nodos en un futuro ya no guardarán la dimensión que disjunta a sus hijos, sino que se elegirá de manera implícita al analizar los rangos contenidos:
+  - Al analizar en que sub-árbol insertar, la posibilidad base es que haya sólo un rango disjunto.
+  - Si hay más de uno, se insertaría en el que signifique aumentar en la menor medida la cajita.
+
+La distancia más cercana en la dimensión disjunta que estén más lejanos los rangos.
+
+Probar guardando dimensión disjunta al actualizar inserciones (profundidad)
+
+Buscar nodo con sólo un hijo de la rama más profunda, o el nodo más profundo

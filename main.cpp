@@ -51,7 +51,7 @@ int main(int argc, char** argv){
     //Para que partan en igual de condiciones.
     arbolito->insertar(numerillo);
     
-
+    
     
 
     for(long int i = 1 ; i<MAX_NUM ; i++){
@@ -106,6 +106,8 @@ int main(int argc, char** argv){
     for(auto nodo : l){
         cout << nodo->strPunto() << endl;
     }
+
+    arbolito->toJson();
 
     return 0;
         
