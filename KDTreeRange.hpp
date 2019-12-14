@@ -506,9 +506,7 @@ namespace KDTreeRange{
         //Si el nodo más profundo (nodoAux) es igual al nodo a eliminar, se elimina y el arbol queda vacío
         if(nodoAux == nodo){
             if(nodo->padre != nullptr){
-                cout << "436" << endl;
-                nodoAux->actualizarRangos(nodo->padre);
-                cout << "438" << endl;
+                //nodoAux->actualizarRangos(nodo->padre);
                 if(nodo->padre->left == nodo)
                     nodo->padre->left = nullptr;
                 else
@@ -518,7 +516,6 @@ namespace KDTreeRange{
         }
 
         //Sino, se reemplaza y se va subiendo y actualizando los rangos.
-        nodoAux->actualizarRangos(nodo);
         nodo->punto = nodoAux->punto;
         if(nodoAux->padre->left == nodoAux){
             nodoAux->padre->left = nullptr;
@@ -877,7 +874,7 @@ namespace KDTreeRange{
       q.push(raiz);
       while(!q.empty()){
         Node<k>* actual=q.front();
-        if(actual->insideBox(menor,mayor){
+        if(actual->insideBox(menor,mayor)){
           l.push_back(actual);
         }
         if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor))

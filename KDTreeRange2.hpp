@@ -117,14 +117,11 @@ namespace KDTreeRange2{
             //Busca un punto en el árbol.
             Punto<k>* buscar(std::vector<float>);
 
-            //Compara el rango del nodo con un punto ingresado, en una dimensión ingresada.
-            int compareR(std::vector<float>, int);
 
             //Compara el punto del nodo con el punto ingresado, retorna true si son iguales, false en caso contrario.
             bool compare(std::vector<float>);
 
-            //TODO: this
-            int compareRanges(std::vector<float>);
+
 
             //Compara las cajas de los sub-árboles para saber donde debe ir el punto recibido.
             //      Retorna -1 si debe ir en el sub-árbol de la izquierda.
@@ -220,7 +217,6 @@ namespace KDTreeRange2{
         int dimension = 0;
         Node *actual = this;
         Node* aux = new Node(punto);
-        cout << "Se inserta: " << aux->strPunto() << endl;
 
         while(!insertado){
 
@@ -233,7 +229,6 @@ namespace KDTreeRange2{
                 //si el punto a insertar, en la dimensión, es mayor que el punto actual en la dimensión,
                         //  Se le inserta en la derecha
                         if(punto_.compareD(punto, dimension) == 1){
-                            cout << "Inserta en derecha" << endl;
                             actual->right = aux;
                             aux->padre = actual;
                             actualizarProfundidad(aux);
@@ -243,7 +238,6 @@ namespace KDTreeRange2{
                         //si el punto a insertar, en la dimensión, es menor que el punto actual en la dimensión,
                         //  Se le inserta en la derecha
                         }else{
-                            cout << "Inserta en izquierda" << endl;
                             actual->left = aux;
                             aux->padre = actual;
                             aux->updateAllRange(punto);
@@ -262,13 +256,11 @@ namespace KDTreeRange2{
 
                 //Si no es disjunto en ninguna dimensión, se inserta en ese nodo.
                 if(comparador->contenido(punto)){
-                    cout << -1 << endl;
                     actual = comparador;
                     dimension = (dimension + 1) % k;
                     continue;
                 }
 
-                //TODO: ver hacia donde es disjunto, para así mover al hijo no nulo de nodo si es necesario
 
                 //
                 if(actual->left == nullptr){
@@ -278,9 +270,7 @@ namespace KDTreeRange2{
                     if(actual->right->rango[res][1] < punto[res]){
                         actual->left = actual->right;
                         actual->right = aux;
-                        cout << "Inserta en derecha, intercambia hijos" << endl;
                     } else{
-                        cout << "Inserta en izquierda" << endl;
                         actual->left = aux;
                     }
                     
@@ -290,11 +280,9 @@ namespace KDTreeRange2{
                     //Si el punto es menor que la caja en la dimensión disjunta,
                     //  se intercambian los hijos.
                     if(actual->left->rango[res][0] > punto[res]){
-                        cout << "Inserta en izquierda, intercambia hijos" << endl;
                         actual->right = actual->left;
                         actual->left = aux;
                     } else{
-                        cout << "Inserta en derecha" << endl;
                         actual->right = aux;
                     }
                     actual->dimension = res;
@@ -307,10 +295,7 @@ namespace KDTreeRange2{
             }
 
 
-            //Variables auxiliares a ocupar dentro del switch
-            int auxDim;
-            int distLeft;
-            int distRight;
+
             //Si el nodo tiene los 2 hijos, se ve si el punto a insertar está
             //  contenido en una de las cajitas (en toda dimensión o con la regla de las dimensiones).
             switch(actual->comparaCajitas(punto)){
@@ -339,8 +324,9 @@ namespace KDTreeRange2{
 
     template<int k>
     void Node<k>::actualizarProfundidad(Node* nodo){
-        //La base es dimensión 1 para todos los nodos.
+        //La base es profundidad 1 para todos los nodos.
         int contador = 1;
+        
         //El punto del nodo con el que se va a actualizar la profundidad.
         Punto<k>* punto = nodo->punto;
         Node<k>* aux = nodo->padre;
@@ -403,11 +389,6 @@ namespace KDTreeRange2{
         return nullptr;
     }
 
-    //TODO: this
-    template<int k>
-    int Node<k>::compareRanges(std::vector<float> val){
-        return -1;
-    }
 
     template<int k>
     int Node<k>::comparaCajitas(std::vector<float> val){
@@ -434,8 +415,9 @@ namespace KDTreeRange2{
         std::vector<int> dimensiones;
 
         //Variables para calcular las distancias desde el punto a la caja.
-        double distLeft = 0, distRight = 0;
-        float rangoL, rangoR, rango1, rango2;
+
+        int dimDis = -1;
+        float dist = INFINITY, distLeft, distRight;
 
         for(int i=0 ; i<k ; i++){
 
@@ -449,45 +431,54 @@ namespace KDTreeRange2{
 
                     //Se obtiene la menor distancia entre los rangos máximos y mínimos
                     //  de cada dimensión y se usan para calcular la distancia con pitágoras
-                    rango1 = fabs(this->right->rango[i][0] - val[i]);
-                    rango2 = fabs(this->right->rango[i][1] - val[i]);
-                    rangoR = (rango1 < rango2)? rango1:rango2;
-
-                    rango1 = fabs(this->left->rango[i][0] - val[i]);
-                    rango2 = fabs(this->left->rango[i][1] - val[i]);
-                    rangoL = (rango1 < rango2)? rango1:rango2;
-
-                    distLeft += pow(rangoL, 2);
-                    distRight += pow(rangoR, 2);
+                    float auxDist = this->right->rango[i][0] - this->left->rango[i][1];
+                    if(auxDist < dist){
+                        dist = auxDist;
+                        dimDis = i;
+                    }
 
                 }
         }
 
-        //Si la distancia de uno es menor a la de otro, entonces se inserta ahí.
+        //Se determina la menor distancia del punto con cada sub árbol en la dimensión
+        
+        if(val[dimDis] < this->right->rango[dimDis][0]){
+            distRight = this->right->rango[dimDis][0] - val[dimDis];
+        }else{
+            //Entonces está al medio, osea su distancia es 0
+            if(val[dimDis] <= this->right->rango[dimDis][0]){
+                distRight = 0;
+
+            }else{
+                distRight =  val[dimDis] - this->right->rango[dimDis][1];
+            }
+        }
+
+        if(val[dimDis] > this->left->rango[dimDis][1]){
+            distLeft = val[dimDis] - this->left->rango[dimDis][1];
+        }else{
+            //Entonces está al medio, osea su distancia es 0
+            if(val[dimDis] >= this->left->rango[dimDis][0]){
+                distLeft = 0;
+                
+            }else{
+                distLeft =  this->left->rango[dimDis][0] - val[dimDis];
+            }
+        }
+        
         if(distLeft < distRight){
             return -1;
         }
-        if(distRight > distLeft){
+
+        if(distRight < distLeft){
             return 1;
         }
-        cout << "Distancias= L:" << distLeft << "; R:" << distRight << endl;
 
+        
         //Si no ha retornado hasta ahora, es porque está justo al medio de ambas.
         return 0;
     }
 
-    template<int k>
-    int Node<k>::compareR(std::vector<float> val, int dimension){
-        
-        if(left != nullptr && (left->rango[dimension][1] >= val[dimension])){
-            return -1;
-        }
-        if(right != nullptr && (right->rango[dimension][0] <= val[dimension])){
-            return 1;
-        }
-
-        return 0;
-    }
 
     template<int k>
     bool Node<k>::compare(std::vector<float> val){
@@ -503,37 +494,36 @@ namespace KDTreeRange2{
 
     template<int k>
     Node<k>* Node<k>::buscarN(std::vector<float> punto){
-
-        int dimension = 0;
         Node* actual = this;
         Punto<k>* auxPunto;
-
         while(actual != nullptr){
             auxPunto = actual->punto;
             
             //Si es el mismo, retornarlo
-            if(actual->compare(punto))
+            if(actual->compare(punto)){
                 return actual;
-            
-            //Si está fuera del rango del arbol, ya no existe
-            if(actual->rango[dimension][1] < punto[dimension] || actual->rango[dimension][0] > punto[dimension])
-                return nullptr;
-            
-            //sino, se ve en que rango puede estar
-            if(actual->right->rango[dimension][1] >= punto[dimension] && actual->right->rango[dimension][0] <= punto[dimension]){
-                actual = actual->right;
-            }      
-            else
-            {
-                actual = actual->left;
             }
+                
             
-            dimension = (dimension + 1) % k;
+            //Si está contenido completamente en la caja de la derecha, se sigue por allá.
+            if(actual->right && actual->right->contenido(punto)){
+                actual = actual->right;
+                continue;
+            }
+
+            //Si está contenido completamente en la caja de la izquierda, se sigue por allá.
+            if(actual->left && actual->left->contenido(punto)){
+                actual = actual->left;
+                continue;
+            }
+
+            return nullptr;
         }
 
 
         return nullptr;
     }
+
 
 
     template<int k>
@@ -554,25 +544,72 @@ namespace KDTreeRange2{
     template<int k>
     Node<k>* Node<k>::eliminar(std::vector<float> punto){
         //Buscar el nodo a eliminar
+        cout << "adsasad" << endl;
         Node<k>* nodo = buscarN(punto);
+        cout << "adsasad" << endl;
         Node<k>* nodoAux = nodo;
+        cout << "adsasad" << endl;
         if(nodo == nullptr)
             return nullptr;
-        
+        cout << "adsasad" << endl;
         //Se parte del nodo y se va hacia abajo, hasta llegar al nodo más profundo.
-
         while(nodoAux->left != nullptr || nodoAux->right != nullptr){
             Node<k>* nodoL = nodoAux->left;
             Node<k>* nodoR = nodoAux->right;
-
+            
             //Se va hacia el nodo que no sea nulo
+            if( nodoAux != nodo && (nodoL == nullptr || nodoR == nullptr)){
+
+                //Se reemplaza con el hijo izquierdo
+                if(nodoR != nullptr){
+                    cout << "DER" << endl;
+                    nodo->punto = nodoAux->punto;
+                    //hay que averiguar que hijo es
+                    if(nodoAux->padre->left == nodoAux){
+                        nodoAux->padre->left = nodoR;
+                    }else{
+                        nodoAux->padre->right = nodoR;
+                    }
+                    
+                    nodoR->padre = nodoAux->padre;
+
+                    return nullptr;
+                }
+
+                //Se reemplaza con el hijo derecho
+                if(nodoL != nullptr){
+                    cout << "IZQ" << endl;
+                    nodo->punto = nodoAux->punto;
+
+                    if(nodoAux->padre->left == nodoAux){
+                        nodoAux->padre->left = nodoL;
+                    }else{
+                        nodoAux->padre->right = nodoL;
+                    }
+                    nodoL->padre = nodoAux->padre;
+
+                    return nullptr;
+                }
+
+                //Si ninguno es nulo, entonces es un nodo hoja
+                cout << "holi" << endl;
+                nodo->punto = nodoAux->punto;
+                if(nodoAux->padre->left == nodoAux){
+                    nodoAux->padre->left = nullptr;
+                }else{
+                    nodoAux->padre->right = nullptr;
+                }
+                return nullptr;
+            }
 
             if(nodoL == nullptr){
+                cout << "DER; ";
                 nodoAux = nodoR;
                 continue;
             }
 
             if(nodoR == nullptr){
+                cout << "IZQ; ";
                 nodoAux = nodoL;
                 continue;
             }
@@ -590,7 +627,6 @@ namespace KDTreeRange2{
         //Si el nodo más profundo (nodoAux) es igual al nodo a eliminar, se elimina y el arbol queda vacío
         if(nodoAux == nodo){
             if(nodo->padre != nullptr){
-                nodoAux->actualizarRangos(nodo->padre);
                 if(nodo->padre->left == nodo)
                     nodo->padre->left = nullptr;
                 else
@@ -598,9 +634,7 @@ namespace KDTreeRange2{
             }
             return nodo;
         }
-
         //Sino, se reemplaza y se va subiendo y actualizando los rangos.
-        nodoAux->actualizarRangos(nodo);
         nodo->punto = nodoAux->punto;
         if(nodoAux->padre->left == nodoAux){
             nodoAux->padre->left = nullptr;
@@ -617,19 +651,17 @@ namespace KDTreeRange2{
     }
 
 
-    //TODO: es importante revisar en que casos se debe actualizar la profundidad, no es sólo reemplazar.
     template<int k>
     void Node<k>::actualizarRangos(Node<k>* final){
         
-        int profundidad = 1;
+        int profundidad = this->profundidad;
         Node<k>* hijo = this;
         Node<k>* otroHijo = this;
         
         Node<k>* aux = this;
         //Se asume que es un nodo no raiz
         bool esHijoDerecho = (aux->padre->right == this);
-        //TODO: esto se debe hacer hasta el nodo padre o hasta el nodo raiz, si se sigue haciendo efectivo el cambio más arriba.
-        //  Hasta ahora lo hace hasta el nodo raiz, sacrificando eficiencia.
+
         do{
             hijo = aux;
             aux = aux->padre;
@@ -702,15 +734,10 @@ namespace KDTreeRange2{
 
     }
 
-    //TODO: ajustar esto a lo que deberia ser
     template<int k>
     void Node<k>::imprime(Node<k>* node, ofstream& file){
-        //cout << node->strPunto();
         file << "{ "<<endl;
 		file << "\ttext: { name: \"" << node->strPunto() << "\"},";
-		//file << "\t \"parent\":\"" << node->strPadre() << "\",";
-		//file << "\t \"depth\":\"" << node->profundidad << "\",";
-        //file << "\t\"ranges\":" << node->strRangos() << endl;
 
 
 		if(node->children()){
@@ -735,8 +762,6 @@ namespace KDTreeRange2{
     //Retorna un string que contiene el punto en todas sus dimensiones
     template<int k>
     string Node<k>::strPunto(){
-        //cout << punto->strPunto();
-        //cout << punto->point[0];
         return punto->strPunto();
     }
 
@@ -831,7 +856,6 @@ namespace KDTreeRange2{
     
     }
     
-    //TODO: hacer que priorice el separarlos lo más posible con la dimensión seleccionada.
 
     //Retorna la dimensión en la  que el punto es disjunto con el rango del nodo
     template<int k>
@@ -924,6 +948,9 @@ namespace KDTreeRange2{
         if(nodo == raiz){
             raiz = nullptr;
         }
+        ;
+        if(nodo == nullptr)
+            return nullptr;
         return nodo->punto;
     }
 

@@ -68,5 +68,5 @@
 La distancia más cercana en la dimensión disjunta que estén más lejanos los rangos.
 
 Probar guardando dimensión disjunta al actualizar inserciones (profundidad)
-
-Buscar nodo con sólo un hijo de la rama más profunda, o el nodo más profundo
+al eliminar:
+  Buscar nodo con sólo un hijo de la rama más profunda, o el nodo más profundo
