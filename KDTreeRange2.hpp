@@ -544,14 +544,12 @@ namespace KDTreeRange2{
     template<int k>
     Node<k>* Node<k>::eliminar(std::vector<float> punto){
         //Buscar el nodo a eliminar
-        cout << "adsasad" << endl;
         Node<k>* nodo = buscarN(punto);
-        cout << "adsasad" << endl;
         Node<k>* nodoAux = nodo;
-        cout << "adsasad" << endl;
+
         if(nodo == nullptr)
             return nullptr;
-        cout << "adsasad" << endl;
+            
         //Se parte del nodo y se va hacia abajo, hasta llegar al nodo más profundo.
         while(nodoAux->left != nullptr || nodoAux->right != nullptr){
             Node<k>* nodoL = nodoAux->left;
@@ -562,7 +560,6 @@ namespace KDTreeRange2{
 
                 //Se reemplaza con el hijo izquierdo
                 if(nodoR != nullptr){
-                    cout << "DER" << endl;
                     nodo->punto = nodoAux->punto;
                     //hay que averiguar que hijo es
                     if(nodoAux->padre->left == nodoAux){
@@ -578,7 +575,6 @@ namespace KDTreeRange2{
 
                 //Se reemplaza con el hijo derecho
                 if(nodoL != nullptr){
-                    cout << "IZQ" << endl;
                     nodo->punto = nodoAux->punto;
 
                     if(nodoAux->padre->left == nodoAux){
@@ -592,7 +588,6 @@ namespace KDTreeRange2{
                 }
 
                 //Si ninguno es nulo, entonces es un nodo hoja
-                cout << "holi" << endl;
                 nodo->punto = nodoAux->punto;
                 if(nodoAux->padre->left == nodoAux){
                     nodoAux->padre->left = nullptr;
@@ -603,13 +598,11 @@ namespace KDTreeRange2{
             }
 
             if(nodoL == nullptr){
-                cout << "DER; ";
                 nodoAux = nodoR;
                 continue;
             }
 
             if(nodoR == nullptr){
-                cout << "IZQ; ";
                 nodoAux = nodoL;
                 continue;
             }

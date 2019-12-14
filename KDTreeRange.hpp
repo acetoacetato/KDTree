@@ -920,7 +920,7 @@ namespace KDTreeRange{
       q.push(raiz);
       while(!q.empty()){
         Node<k>* actual=q.front();
-        if(actual->insideBox(menor,mayor){
+        if(actual->insideBox(menor,mayor)){
           actual->eliminar(actual->punto->point);
         }
         if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor)){
