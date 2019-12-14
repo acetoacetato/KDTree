@@ -99,6 +99,9 @@ namespace KDTreeRange{
 
             //Constructor
             Node(std::vector<float>);
+            
+            //Destructor
+            ~Node();
 
             //Convierte todos los rangos del nodo en el punto.
             void updateAllRange(std::vector<float>);
@@ -159,6 +162,9 @@ namespace KDTreeRange{
             //Retorna true si el rango del subarbol contiene alguna seccion en la caja
             bool rangeInsideBox(std::vector<float> , std::vector<float>);
             
+            //Retorna true si el rango se encuentra completo en la caja
+            bool rangeFullInsideBox(std::vector<float> , std::vector<float>);
+            
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -182,6 +188,15 @@ namespace KDTreeRange{
         right = nullptr;
         padre = nullptr;
     }
+    
+    
+    template<int k>
+    Node<k>::~Node(){
+      if(left!=nullptr)left->~Node();
+      if(right!=nullptr)right->~Node();
+      delete[] punto;
+    }
+    
 
     template<int k>
     void Node<k>::updateAllRange(std::vector<float> punto){
@@ -762,6 +777,16 @@ namespace KDTreeRange{
       return true;
     }
     
+    template<int k>
+    bool Node<k>::rangeFullInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((rango[i][0] < menor[i]) || (rango[i][1] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -781,6 +806,7 @@ namespace KDTreeRange{
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
             list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
+            void eliminaPuntosInsideBox(std::vector<float>, std::vector<float>);
 
     };
 
@@ -887,6 +913,35 @@ namespace KDTreeRange{
       return l;
     }
     
+    
+    template<int k>
+    void KDTreeR<k>::eliminaPuntosInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      std::queue <Node<k>*> q;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front();
+        if(actual->insideBox(menor,mayor){
+          actual->eliminar(actual->punto->point);
+        }
+        if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor)){
+          if(actual->left->rangeFullInsideBox(menor,mayor)){
+            actual->left->~Node();
+          }
+          else{
+            q.push(actual->left);
+          }
+        }
+        if(actual->right != nullptr && actual->right->rangeInsideBox(menor,mayor))
+          if(actual->right->rangeFullInsideBox(menor,mayor)){
+            actual->right->~Node();
+          }
+          else{
+            q.push(actual->right);
+          }
+        q.pop();
+      }
+    
+    }
     
 }
 
