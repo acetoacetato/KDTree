@@ -171,6 +171,10 @@ namespace KDTreeRange2{
             //  sub árbol, false en caso contrario.
             bool contenido(std::vector<float>);
             
+            
+            //Retorna la distancia euclidiana al cuadrado del nodo con respecto al punto entrante
+            float distancia(std::vector<float> val)
+            
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -865,12 +869,23 @@ namespace KDTreeRange2{
     template<int k>
     bool Node<k>::contenido(std::vector<float> val){
         for(int i=0 ; i<k ; i++){
-            //Si el rango está contenido, se retorna la dimensión en la que está.
             if(rango[i][0] > val[i] || rango[i][1] < val[i])
                 return false;
         }
 
         return true;
+    }
+    
+    template<int k>
+    float Node<k>::distancia(std::vector<float> val){
+        float dist=0;
+        float aux;
+        for(int i=0 ; i<k ; i++){
+            aux=punto->point[i]-val[i];
+            dist += aux*aux;
+        }
+
+        return dist;
     }
 
 
@@ -891,6 +906,7 @@ namespace KDTreeRange2{
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
             void rangoHijos();
+            list<Node<k>*> vecinosMasCercanos(std::vector<float>, int);
 
     };
 
@@ -997,6 +1013,40 @@ namespace KDTreeRange2{
         {
             cout << "[]" << endl;
         }
+    }
+    
+    template<int k>
+    list<Node<k>*> KDTreeR2<k>::vecinosMasCercanos(std::vector<float> punto, int n){
+      std::queue <Node<k>*> q;
+      std::list <Node<k>*> l;
+      int listRange=0;
+      float maxDistance=0;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front();
+        if(listRange < n){
+          l.push_back(actual);
+          listRange +=1;
+          if(actual->distancia(punto)>maxDistance){
+            maxDistance= actual->distancia(punto);
+          }
+        }
+        else if(actual->distancia(punto)<maxDistance){
+          for(int i=0 ; i<n ; i++){
+          Node<k>* listAct = l.pop_front();
+            if(listAct->distancia(punto)==maxDistance){
+              maxdistance=actual->distancia(punto);
+              l.push_back(actual);
+              break;
+            }
+            l.push_back(listAct);
+          }
+        }
+        q.pop();
+      }
+      
+      return l;
+    
     }
     
     
