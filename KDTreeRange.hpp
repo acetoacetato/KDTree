@@ -9,7 +9,134 @@
 
 
 using namespace std;
+
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+
+
+
+
+
 namespace KDTreeRange{
+
+    template<int k>
+    class PriorityQueue{
+    
+    
+        public:
+            nodo *delante;
+            nodo *atras;
+            void* pop();
+            void insertar(void*, float)
+        };
+          
+          
+        /*                Estructura de los nodos de la cola       
+        ------------------------------------------------------------------------*/
+        template<int k>
+        struct nodo
+        {
+            void* dato;
+            float priori;        // prioridad del nodo
+            struct nodo *sgte;
+        };
+        
+        
+        
+        /*                         Crear Nodo     
+        ------------------------------------------------------------------------*/
+        template<int k>
+        struct nodo* PriorityQueue::crearNodo( void* x, int pr)
+        {
+            struct nodo *nuevoNodo = new(struct nodo);
+            nuevoNodo->dato = x;
+            nuevoNodo->priori = pr;
+            return nuevoNodo;
+        };
+        
+        /*                        Encolar caracter con prioridad      
+        ------------------------------------------------------------------------*/
+        template<int k>
+        void PriorityQueue::encolar( void* valor, int priori )
+        {
+             
+             struct nodo *aux = crearNodo(valor, priori);
+             aux->sgte = nullptr;
+             
+             if( delante == nullptr)
+                 delante = aux;   // encola el primero elemento
+             else
+                 (atras)->sgte = aux;
+        
+             atras = aux;        // puntero que siempre apunta al ultimo elemento 
+        }
+        
+        template<int k>
+        void* PriorityQueue::pop(){ //saca el primer elemento y retorna el valor
+              
+              if(delante == nullptr)
+                  return nullptr; //retorna null si la cola esta vacia
+              struct nodo *aux = delante;
+              if(delante == q.atras){
+                  delante = nullptr;
+                  atras = nullptr;
+              }
+              else{
+                  delante = (delante)->sgte;
+              }
+              return aux->dato;
+              
+        }
+        
+        
+        /*         Ordenar  por prioridad( criterio de O. por Burbuja)    
+        ------------------------------------------------------------------------*/
+        template<int k>
+        void PriorityQueue::ordenarPrioridad()
+        {
+             struct nodo *aux1, *aux2;
+             int p_aux;
+             char c_aux;
+             
+             aux1 = delante;
+             
+             while( aux1->sgte != nullptr)
+             {
+                    aux2 = aux1->sgte;
+                    
+                    while( aux2 != nullptr)
+                    {
+                           if( aux1->priori > aux2->priori )
+                           {
+                               p_aux = aux1->priori;
+                               c_aux = aux1->dato;
+                               
+                               aux1->priori = aux2->priori;
+                               aux1->dato   = aux2->dato;
+                               
+                               aux2->priori = p_aux;
+                               aux2->dato   = c_aux;
+                           }
+                           
+                           aux2 = aux2->sgte;
+                    }
+                    
+                    aux1 = aux1->sgte;
+             }
+        }
+        /*                Inserta cacacteres en una cola     
+        ------------------------------------------------------------------------*/
+        template<int k>
+        void insertar(void* c, int pr )
+        {
+             /* Encolando caracteres */
+             encolar( c, pr );
+             
+             /* Ordenando por prioridad */
+             ordenarPrioridad(); 
+      }
+    
 
     template<int k>
     class Punto{
@@ -164,6 +291,12 @@ namespace KDTreeRange{
             
             //Retorna true si el rango se encuentra completo en la caja
             bool rangeFullInsideBox(std::vector<float> , std::vector<float>);
+            
+            //Retorna la distancia Manhattan desde el punto de referencia al punto del nodo
+            float distacePoint(std::vector<float>);
+            
+            //Retorna la distancia Manhattan desde el punto de referencia al rango del nodo
+            float distanceRange(std::vector<float>);
             
 
             private:
@@ -787,6 +920,27 @@ namespace KDTreeRange{
       return true;
     }
     
+    template<int k>
+    float Node<k>::distancePoint(std::vector<float> ref){
+      float dist= 0.0f;
+      for(int i=0;i<k;i++){
+        dist = dist + abs(punto->point[i]-ref[i]);
+      }
+      return dist;
+    }
+    
+    template<int k>
+    float Node<k>::distanceRange(std::vector<float> ref){
+      float dist= 0.0f;
+      for(int i=0;i<k;i++){
+        if(ref[i] > rango[i][1])
+          dist = dist + abs(ref[i]-rango[i][1]);
+        else if(ref[i] < rango[i][0])
+          dist = dist + abs(rango[i][0]-ref[i]);
+      }
+      return dist;
+    }
+    
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -807,6 +961,8 @@ namespace KDTreeRange{
             list<Node<k>*> puntosNoDominados(std::vector<float>);
             list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
             void eliminaPuntosInsideBox(std::vector<float>, std::vector<float>);
+            Node<k>* vecinoMasCercano(std::vector<float>;
+            list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float>, int)
 
     };
 
@@ -916,7 +1072,7 @@ namespace KDTreeRange{
     
     template<int k>
     void KDTreeR<k>::eliminaPuntosInsideBox(std::vector<float> menor, std::vector<float> mayor){
-      std::queue <Node<k>*> q;
+      std::queue<Node<k>*> q;
       q.push(raiz);
       while(!q.empty()){
         Node<k>* actual=q.front();
@@ -941,6 +1097,96 @@ namespace KDTreeRange{
         q.pop();
       }
     
+    }
+    
+    template<int k>
+    Node<k>* KDTreeR<k>::vecinoMasCercano(std::vector<float> ref){
+       PriorityQueue q;
+       Node<k>* vecino;
+       float distance=999999.9f;
+       float distAct;
+       Node<k>* actual = raiz;
+       while(actual != nullptr){
+           distAct=actual->distancePoint(ref);
+           //se reemplaza el vecino
+           if(distance > distAct){
+               vecino = actual;
+               distance = distAct;
+           }
+           //se agregan los subarboles
+           distAct=actual->left->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->left,distAct);
+           
+           distAct=actual->right->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->right,distAct);
+           //se obtiene el siguiente para operar
+           actual=(Node<k>*)q->pop();
+       }
+       return vecino;
+    }
+    
+    template<int k>
+    list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float> ref, int n){
+       std::list<Node<k>*> l;
+       PriorityQueue q;
+       float distance=999999.9f;
+       float distAct;
+       Node<k>* actual = raiz;
+       Node<k>* aux,aux1;
+       while(actual != nullptr){
+           //se llena la lista de manera ordenada
+           if(l.size()< n )
+           {
+               aux=actual;
+               for(int i=0;i<l.size();i++){
+                   aux1=l.front();
+                   l.pop_front();
+                   if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
+                     l.push_back(aux);
+                     aux=aux1;
+                   }
+                   else{
+                     l.push_back(aux1);
+                   }
+               }
+               distance=aux->distancePoint(ref);
+               l.push_back(aux);
+           }
+           //se reemplaza el nuevo nodo si es mas cercano al ultimo de la lista, de manera ordenada
+           else{
+               distAct=actual->distancePoint(ref);
+               if(distAct< distance){
+               
+                 aux=actual;
+                 for(int i=0;i<l.size();i++){
+                     aux1=l.front();
+                     l.pop_front();
+                     if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
+                       l.push_back(aux);
+                       aux=aux1;
+                     }
+                     else{
+                       l.push_back(aux1);
+                     }
+                 }
+                 distance=(l.back())->distancePoint(ref);
+               
+               }
+           }
+           //se agregan los subarboles
+           distAct=actual->left->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->left,distAct);
+           
+           distAct=actual->right->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->right,distAct);
+           //se obtiene el siguiente para operar
+           actual=(Node<k>*)q->pop();
+       }
+       return l;
     }
     
 }
