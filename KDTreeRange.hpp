@@ -292,10 +292,10 @@ namespace KDTreeRange{
             //Retorna true si el rango se encuentra completo en la caja
             bool rangeFullInsideBox(std::vector<float> , std::vector<float>);
             
-            //Retorna la distancia Manhattan desde el punto de referencia al punto del nodo
+            //Retorna la distancia Euclidiana desde el punto de referencia al punto del nodo
             float distacePoint(std::vector<float>);
             
-            //Retorna la distancia Manhattan desde el punto de referencia al rango del nodo
+            //Retorna la distancia Euclidiana desde el punto de referencia al rango del nodo
             float distanceRange(std::vector<float>);
             
 
@@ -923,8 +923,10 @@ namespace KDTreeRange{
     template<int k>
     float Node<k>::distancePoint(std::vector<float> ref){
       float dist= 0.0f;
+      float calc;
       for(int i=0;i<k;i++){
-        dist = dist + abs(punto->point[i]-ref[i]);
+        calc = punto->point[i]-ref[i]
+        dist = dist + calc * calc;
       }
       return dist;
     }
@@ -932,11 +934,14 @@ namespace KDTreeRange{
     template<int k>
     float Node<k>::distanceRange(std::vector<float> ref){
       float dist= 0.0f;
+      float calc;
       for(int i=0;i<k;i++){
         if(ref[i] > rango[i][1])
-          dist = dist + abs(ref[i]-rango[i][1]);
+          calc = ref[i]-rango[i][1];
+          dist = dist + calc * calc;
         else if(ref[i] < rango[i][0])
-          dist = dist + abs(rango[i][0]-ref[i]);
+          calc = ref[i]-rango[i][0]
+          dist = dist + calc * calc;
       }
       return dist;
     }
