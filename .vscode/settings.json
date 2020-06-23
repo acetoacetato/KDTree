@@ -44,6 +44,28 @@
         "list": "cpp",
         "chrono": "cpp",
         "ctime": "cpp",
-        "ratio": "cpp"
-    }
+        "ratio": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp",
+        "xstring": "cpp",
+        "ios": "cpp",
+        "xiosbase": "cpp",
+        "cstring": "cpp",
+        "concepts": "cpp",
+        "queue": "cpp",
+        "xfacet": "cpp",
+        "xhash": "cpp",
+        "xlocale": "cpp",
+        "xlocinfo": "cpp",
+        "xlocnum": "cpp",
+        "xmemory": "cpp",
+        "xstddef": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp",
+        "set": "cpp",
+        "stack": "cpp",
+        "xtree": "cpp",
+        "map": "cpp"
+    },
+    "cmake.configureOnOpen": false
 }

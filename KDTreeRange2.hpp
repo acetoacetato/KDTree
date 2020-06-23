@@ -20,6 +20,9 @@ namespace KDTreeRange2{
 
             //Retorna el valor de la n-esima dimensión dado un iterador.
             float getVal(int);
+
+            std::vector<float> get();
+            void set(std::vector<float>);
             //Compara los valores en una dimensión dada
             //      -1 si el pto recibido es menor
             //       0 si el pto recibido es igual
@@ -34,6 +37,23 @@ namespace KDTreeRange2{
     template<int k>
     float Punto<k>::getVal(int dim){
         return point[dim];
+    }
+
+    template<int k>
+    std::vector<float> Punto<k>::get(){
+        std::vector<float> aux;
+        for(auto num : point){
+            aux.push_back(num);
+        }
+        return aux;
+    }
+
+    template<int k>
+    void Punto<k>::set(std::vector<float> punto){
+        point.clear();
+        for(auto num : punto){
+            point.push_back(num);
+        }
     }
 
     template<int k>
@@ -169,8 +189,12 @@ namespace KDTreeRange2{
 
             //Retorna true si el punto ingresado está completamente contenido en el
             //  sub árbol, false en caso contrario.
-            bool contenido(std::vector<float>);
+            bool contenido(std::vector<float>, int dim = -1);
             
+            // Retorna la dimensión por la cual se disjuntan los hijos
+            int dimDisjunta();
+
+
 
             private:
                 //Imprime el arbol completo, mostrando en cada nodo su valor, su padre, si es izq o der, y los rangos de el nodo.
@@ -222,8 +246,7 @@ namespace KDTreeRange2{
 
             //Auxiliar que apunta al punto del nodo.
             Punto<k> punto_ = *actual->punto;
-
-
+            bool cambia = false;
             //Si es nodo hoja, se usa la regla del KD-Tree normal
             if(actual->left == nullptr && actual->right == nullptr){
                 //si el punto a insertar, en la dimensión, es mayor que el punto actual en la dimensión,
@@ -233,6 +256,8 @@ namespace KDTreeRange2{
                             aux->padre = actual;
                             actualizarProfundidad(aux);
                             aux->updateAllRange(punto);
+                            aux->dimension = 0;
+                            actual->dimension = 0;
                             return;
 
                         //si el punto a insertar, en la dimensión, es menor que el punto actual en la dimensión,
@@ -242,6 +267,8 @@ namespace KDTreeRange2{
                             aux->padre = actual;
                             aux->updateAllRange(punto);
                             actualizarProfundidad(aux);
+                            aux->dimension = 0;
+                            actual->dimension = 0;
                             return;
                         }
             }
@@ -254,20 +281,41 @@ namespace KDTreeRange2{
 
                 int res = comparador->esDisjunto(punto);
 
-                //Si no es disjunto en ninguna dimensión, se inserta en ese nodo.
+                //Si no es disjunto en ninguna dimensión, se inserta en ese sub árbol.
                 if(comparador->contenido(punto)){
                     actual = comparador;
+                    aux->dimension = actual->dimension;
                     dimension = (dimension + 1) % k;
                     continue;
                 }
 
-
+                
+                // Se verifica si pueden empujarse las dimensiones:
+                //      1- se ve en que dimensión es disjunta con el otro nodo insertado
                 //
+                //
+                int res2 = comparador->esDisjunto(actual->punto->point);
+                if(res2 != -1){
+                    //Entonces cabe la posibilidad de cambiarlo
+                    //  Así que se selecciona la mejor dimension
+                    //TODO: ver como encontrar la mejor dimensión
+                    auto auxPto = actual->punto->point;
+                    // Si actual en la dimensión disjunta está fuera de rango
+                    //if(auxPto[res2][1] < comparador->rango[res2][0] || auxPto[res2][0] > comparador->rango[res2][1]){
+                    //    
+                    //}
+                    
+
+                }
+
+
                 if(actual->left == nullptr){
+
 
                     //Si el punto es mayor que la caja en la dimensión disjunta,
                     //  se intercambian los hijos.
                     if(actual->right->rango[res][1] < punto[res]){
+                        
                         actual->left = actual->right;
                         actual->right = aux;
                     } else{
@@ -289,7 +337,9 @@ namespace KDTreeRange2{
                 }
                 aux->padre = actual;
                 aux->updateAllRange(punto);
+                aux->dimension = res;
                 actualizarProfundidad(aux);
+                
                 return;
                 
             }
@@ -298,7 +348,8 @@ namespace KDTreeRange2{
 
             //Si el nodo tiene los 2 hijos, se ve si el punto a insertar está
             //  contenido en una de las cajitas (en toda dimensión o con la regla de las dimensiones).
-            switch(actual->comparaCajitas(punto)){
+            int resp = actual->comparaCajitas(punto);
+            switch(resp){
                 //Está entre las 2 cajas.
                 case 0: 
                     //Se elige la caja por defecto, osea la derecha.
@@ -306,10 +357,12 @@ namespace KDTreeRange2{
                     break;
                 //Está contenida en la derecha o excede el rango de la derecha.
                 case 1:
+                    //actual->dimension = resp[1];
                     actual = actual->right;
                     break;
                 //Está contenida en la izauierda o el rango de la izquierda excede el valor del punto.
                 case -1:
+                    //actual->dimension = resp[1];
                     actual = actual->left;
                     break;
             }
@@ -351,7 +404,8 @@ namespace KDTreeRange2{
                     }
                 }
             }
-
+            //cout << "Disjunto de " << aux->strPunto() << endl;
+            aux->dimension = aux->dimDisjunta();
             aux = aux->padre;
             contador++;
         }
@@ -359,11 +413,12 @@ namespace KDTreeRange2{
 
     template<int k>
     Punto<k>* Node<k>::buscar(std::vector<float> punto){
+        //cout << "\n\n" << endl;
         Node* actual = this;
         Punto<k>* auxPunto;
         while(actual != nullptr){
             auxPunto = actual->punto;
-            
+            //cout << auxPunto->strPunto() << endl;
             //Si es el mismo, retornarlo
             if(actual->compare(punto)){
                 return actual->punto;
@@ -371,14 +426,16 @@ namespace KDTreeRange2{
                 
             
             //Si está contenido completamente en la caja de la derecha, se sigue por allá.
-            if(actual->right && actual->right->contenido(punto)){
+            if(actual->right && actual->right->contenido(punto, actual->dimension)){
                 actual = actual->right;
+                //cout << "der"<<endl;
                 continue;
             }
 
             //Si está contenido completamente en la caja de la izquierda, se sigue por allá.
-            if(actual->left && actual->left->contenido(punto)){
+            if(actual->left && actual->left->contenido(punto, actual->dimension)){
                 actual = actual->left;
+                //cout << "izq"<<endl;
                 continue;
             }
 
@@ -399,6 +456,7 @@ namespace KDTreeRange2{
          *  3- Si cumple con que son disjuntos, se ve qué caja quedaría más pequeña.
          *  4- Si no cumple, se usa la otra.
          */
+        int res[2];
         //Si pertenece completamente en la cajita de la izquierda, se inserta ahí
         if(this->left != nullptr && this->left->contenido(val)){
             return -1;
@@ -730,7 +788,18 @@ namespace KDTreeRange2{
     template<int k>
     void Node<k>::imprime(Node<k>* node, ofstream& file){
         file << "{ "<<endl;
-		file << "\ttext: { name: \"" << node->strPunto() << "\"},";
+		file << "\ttext: {\n";
+        file << "name: \"" << node->strPunto() << "\",\n";
+        file << "dimension: \"" << node->dimension << "\",\n";
+        for(int i=0 ; i<k ; i++){
+            file << "rango" << i <<": \"[" << node->rango[i][0] << ", " << node->rango[i][1] << "]\"";
+            if(i < k-1){
+                file << ",";
+            }
+            file << "\n";
+        }
+        file << "},\n";
+        
 
 
 		if(node->children()){
@@ -854,7 +923,7 @@ namespace KDTreeRange2{
     template<int k>
     int Node<k>::esDisjunto(std::vector<float> val){
         for(int i=0 ; i<k ; i++){
-            //Si el rango está contenido, se retorna la dimensión en la que está.
+            //Si el punto no está contenido en el rango, se retorna la dimensión.
             if(rango[i][0] > val[i] || rango[i][1] < val[i])
                 return i;
         }
@@ -863,15 +932,72 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    bool Node<k>::contenido(std::vector<float> val){
-        for(int i=0 ; i<k ; i++){
-            //Si el rango está contenido, se retorna la dimensión en la que está.
-            if(rango[i][0] > val[i] || rango[i][1] < val[i])
+    bool Node<k>::contenido(std::vector<float> val, int dim){
+        if(dim == -1){
+            for(int i=0 ; i<k ; i++){
+                //Si el rango está contenido, se retorna la dimensión en la que está.
+                if(rango[i][0] > val[i] || rango[i][1] < val[i])
+                    return false;
+            }
+        }else{
+            //cout << "||" << dimension << "||";
+            //cout << rango[dim][0] << " > "  << val[dim] << " || " << rango[dim][1] << " < "  << val[dim] << endl;
+            if(rango[dim][0] > val[dim] || rango[dim][1] < val[dim]){
+                //cout << "false" << endl;
                 return false;
-        }
 
+            }
+        }
+        
+        
+        //cout << "true" << endl;
         return true;
     }
+
+    // Retorna la dimensión por la cual se disjuntan los hijos. -1 si no hay rangos disjuntos
+    template<int k>
+    int Node<k>::dimDisjunta(){
+        /*
+            Supuesto procedimiento:
+                1- obtengo el [ de mayor valor
+                2- lo comparo con los [ ] del otro nodo
+                3- si está entremedio, el rango está contenido
+        */
+
+        if(left == nullptr || right == nullptr)
+            return 0;        
+        //cout << "valor de k = " << k << endl;
+        for(int i=0 ; i<k ; i++){
+             
+            //ADVERTENCIA: Codigo spaghetti
+            //  Me costó mucho entender que hacer en este caso, 
+            //      ya que el como separa las dimenciones está un poco roto.
+            //TODO: Aumentar legibilidad de esto
+            //cout << "" << left->rango[i][0] << " <= " << right->rango[i][0] << endl;
+            if(left->rango[i][0] <= right->rango[i][0]){
+                if(left->rango[i][1] >= right->rango[i][0]){
+                    continue;
+                }else{
+                    return i;
+                }
+            } else{
+                if(right->rango[i][1] >= left->rango[i][0]){
+                    continue;
+                } else{
+                    return i;
+                }
+            }
+
+        
+
+        }
+        //cout << punto->strPunto() << endl;
+        //cout << left->strRangos() << endl;
+        //cout << right->strRangos()<< endl;
+        return -1;
+    }
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,6 +1017,7 @@ namespace KDTreeRange2{
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
             void rangoHijos();
+            void actualizaDim();
 
     };
 
@@ -949,14 +1076,24 @@ namespace KDTreeRange2{
 
     template<int k>
     void KDTreeR2<k>::toJson(){
-        ofstream myfile( "arbolito.json");
-        myfile << "{" << endl;
+       
+        ofstream myfile( "Graficador/basic-example.js");
+        myfile << "var gente = {" << endl;
         myfile << "\tchart: {" << endl;
-        myfile << "\t\tcontainer: \"#tree_simple\"" << endl;
+        myfile << "\t\tcontainer: \"#basic-example\"," << endl;
+        myfile << "\t\tconnectors: {" << endl;
+        myfile << "\t\t\ttype: 'step'" << endl;
+        myfile << "\t\t}," << endl;
+        myfile << "\t\tnode: {" << endl;
+        myfile << "\t\t\tHTMLclass: 'nodeExample1'" << endl;
+        myfile << "\t\t}" << endl;
         myfile << "\t}," << endl;
         myfile << "\tnodeStructure: ";
 
         raiz->imprime(raiz, myfile);
+        myfile << "}\n";
+
+        myfile << "chart_config = gente";
     }
     
     template<int k>
@@ -999,6 +1136,7 @@ namespace KDTreeRange2{
         }
     }
     
+
     
 }
 

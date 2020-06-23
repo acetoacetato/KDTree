@@ -1,0 +1,22 @@
+CC = g++
+PROJECT = a
+CFLAGS = 
+SRCFILES = main3.cpp
+
+$(PROJECT): 
+	$(CC) $(CFLAGS) $(SRCFILES) -O3 -o a.exe
+
+all: $(PROJECT)
+
+run: $(PROJECT)
+	./$(PROJECT).exe
+
+generator: 
+	$(CC) $(CFLAGS) generaPuntos.cpp Argument_helper/*.cc -o generaPuntos.exe 
+
+rungenerate: generator
+	./generaPuntos.exe -m $(m) -d $(d)
+
+
+runtest: rungenerate $(PROJECT) run
+
