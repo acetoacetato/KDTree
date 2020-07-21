@@ -2,6 +2,11 @@
 
 Este repositorio contiene una propuesta de KD-Tree que intenta resolver el problema de esta estructura al eliminar e insertar muchos datos sobre este.
 
+## Como correr el test
+
+    make runtest m=<Cantidad de puntos a generar> d=<Cantidad de dimensiones por punto>
+
+
 La estrategia utilizada comienza con guardar los rangos de cada sub árbol, en cada dimensión, en cada nodo.
 
 ![Ejemplo](Figuras/arbol.png)

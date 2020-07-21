@@ -67,3 +67,11 @@ La distancia más cercana en la dimensión disjunta que estén más lejanos los 
 Probar guardando dimensión disjunta al actualizar inserciones (profundidad)
 al eliminar:
   Buscar nodo con sólo un hijo de la rama más profunda, o el nodo más profundo
+
+
+
+- [ ] Nodos visitados.
+- [ ] Profundidad
+- [ ] arreglar insertar
+
+- [ ] Escribir seudo codigo de estructura, codigo de inserción y eliminación

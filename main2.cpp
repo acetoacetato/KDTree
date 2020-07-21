@@ -9,10 +9,9 @@
 using namespace std;
 using namespace KDTreeRange2;
 using namespace KDTreeRange;
-const int dimensiones = 2;
+const int dimensiones = 3;
 
 std::vector<float> generaPunto(int dim){
-    
     float num;
     
     std::vector<float> numero;
@@ -36,7 +35,7 @@ int main(int argc, char** argv){
     KDTree::Node<dimensiones>* raiz = nullptr;
     std::vector<float> punto;
     std::vector<std::vector<float>> numeros;
-    int MAX_NUM = (argc > 1)? atoi(argv[1]):10;
+    int MAX_NUM = (argc > 1)? atoi(argv[1]):1000;
     output.open("test.js", std::ios_base::app);
     file.open("thegame.txt", std::ios_base::app);
     file << "\n///////////////////////////////////////////" << endl;
@@ -53,37 +52,36 @@ int main(int argc, char** argv){
     //        {9, 1000000000},
     //        {-10, -10000000000},
     //    };
-    numeros = {
-            {0, 1},
-            {0, 2},
-            {0, 3},
-            {0, 4},
-            {0, 5},
-            {0, 6},
-            {0, 7},
-            {0, 8},
-            {0, 9},
-            {0, 10}
-    };
+    //numeros = {
+    //        {0, 1},
+    //        {0, 2},
+    //        {0, 3},
+    //        {0, 4},
+    //        {0, 5},
+    //        {0, 6},
+    //        {0, 7},
+    //        {0, 8},
+    //        {0, 9},
+    //        {0, 10}
+    //};
 //
-    cout << "aca" << endl;
+    cout << "aca\n\n\n\n\n\n\n\n\n\naca" << endl;
     for(int i=0 ; i<MAX_NUM ; i++){
-        //punto = generaPunto(dimensiones);
+        punto = generaPunto(dimensiones);
         
-        punto = numeros[i];
+        //punto = numeros[i];
         file << "{" << punto[0] << ", " << punto[1] << "}," << endl;
         arbol->insertar(punto);
         raiz = KDTree::insertar<dimensiones>(punto, raiz);
         //arbol->toJson();
         //system("pause");
-        //numeros.push_back(punto);
+        numeros.push_back(punto);
         
     }
 
     //arbol->actualizaDim();
     //arbol->mostrarArbol();
     
-    KDTree::toJson<2>(raiz);
     //arbol->eliminar(numeros[0]);
     cout << numeros[0][0] << ", " << numeros[0][1] << endl;
     for(auto num : numeros){
@@ -94,12 +92,12 @@ int main(int argc, char** argv){
     }
 
     //arbol->mostrarArbol();
-    cout << arbol->profundidad() << endl;
-    cout << endl;
-
-    std::list<KDTree::Node<2>*> nNeibourghs = raiz->knn({0,3}, 4);
-    for(auto nodo : nNeibourghs){
-        cout << nodo->strPunto() << endl;
-    }
+    //cout << arbol->profundidad() << endl;
+    //cout << endl;
+//
+    //std::list<KDTree::Node<2>*> nNeibourghs = raiz->knn({0,3}, 4);
+    //for(auto nodo : nNeibourghs){
+    //    cout << nodo->strPunto() << endl;
+    //}
     return 0;
 }
