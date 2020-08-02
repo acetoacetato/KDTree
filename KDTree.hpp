@@ -16,7 +16,7 @@ class Punto{
 
         //Retorna el valor de la n-esima dimensión dado un iterador.
         float getVal(int);
-        bool compare(std::vector<float>);
+        bool compare(std::vector<float>&);
         Punto(std::vector<float>);
         string strPunto();
         
@@ -28,7 +28,7 @@ float Punto<k>::getVal(int dim){
 }
 
 template<int k>
-bool Punto<k>::compare(std::vector<float> punto){
+bool Punto<k>::compare(std::vector<float>& punto){
     for(int i=0 ; i<k ; i++){
         if(this->point[i] != punto[i])
             return false;
@@ -71,7 +71,7 @@ class Node{
 
         void actualizarProfundidad();
         void insertar(std::vector<float>);
-        Punto<k>* buscar(std::vector<float>);
+        /*Punto<k>* */int buscar(std::vector<float>);
         void toJson(ofstream&, int pos = -1);
         string strPunto();
         
@@ -150,24 +150,30 @@ void Node<k>::insertar(std::vector<float> puntos){
 }
 
 template<int k>
-Punto<k>* Node<k>::buscar(std::vector<float> punto){
+/*Punto<k>* */int Node<k>::buscar(std::vector<float> punto){
     int dimension = 0;
     Node<k>* actual = this;
     Punto<k>* auxPunto;
+    int recorridos = 1;
     while(actual != nullptr){
         auxPunto = actual->punto;
-        if(auxPunto->compare(punto))
-            return actual->punto;
 
-        if(auxPunto->getVal(dimension) < punto[dimension])
+        if(auxPunto->compare(punto))
+            return recorridos;//actual->punto;
+
+        if(auxPunto->getVal(dimension) < punto[dimension]){
             actual = actual->right;
-        else
+            recorridos++;
+        } else{
             actual = actual->left;
+            recorridos++;
+        }
+            
         
         dimension = (dimension + 1) % k;
     }
 
-    return nullptr;
+    return -1;//nullptr;
 }
 
 template<int k>

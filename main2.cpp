@@ -39,38 +39,25 @@ int main(int argc, char** argv){
     output.open("test.js", std::ios_base::app);
     file.open("thegame.txt", std::ios_base::app);
     file << "\n///////////////////////////////////////////" << endl;
+    
     //numeros = {
-    //        {0, 0},
-    //        {1, 10},
-    //        {-2, -100},
-    //        {3, 1000},
-    //        {-4, -10000 },
-    //        {5, 100000},
-    //        {-6, -1000000},
-    //        {7, 10000000},
-    //        {-8, -100000000},
-    //        {9, 1000000000},
-    //        {-10, -10000000000},
-    //    };
-    //numeros = {
-    //        {0, 1},
-    //        {0, 2},
-    //        {0, 3},
-    //        {0, 4},
-    //        {0, 5},
-    //        {0, 6},
-    //        {0, 7},
-    //        {0, 8},
-    //        {0, 9},
-    //        {0, 10}
-    //};
-//
+    //            {9615, 3673, 8302},
+    //            {2825, 118, 353},
+    //            {2187, 3721, 6768},
+    //            {8826, 2381, 443},
+    //            {4221, 1873, 2028},
+    //            {5031, 4668, 6717},
+    //            {8480, 8584, 6201},
+    //            {1910, 128, 2930},
+    //            {7447, 4999, 9645},
+    //            {952, 8991, 9523},
+    //        };
     cout << "aca\n\n\n\n\n\n\n\n\n\naca" << endl;
     for(int i=0 ; i<MAX_NUM ; i++){
         punto = generaPunto(dimensiones);
         
         //punto = numeros[i];
-        file << "{" << punto[0] << ", " << punto[1] << "}," << endl;
+        file << "{" << punto[0] << ", " << punto[1] << ", " << punto[2] << "}," << endl;
         arbol->insertar(punto);
         raiz = KDTree::insertar<dimensiones>(punto, raiz);
         //arbol->toJson();
@@ -83,10 +70,11 @@ int main(int argc, char** argv){
     //arbol->mostrarArbol();
     
     //arbol->eliminar(numeros[0]);
+    arbol->toJson();
     cout << numeros[0][0] << ", " << numeros[0][1] << endl;
     for(auto num : numeros){
-        auto busqueda = arbol->buscar(num);
-        if(busqueda == nullptr){
+        auto busqueda = arbol->buscarLazy(num);
+        if(busqueda == -1){
             cout << "1not found (" << num[0] << ", " << num[1] << ", " << num[2] << ")\n"; 
         }
     }

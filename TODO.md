@@ -51,7 +51,7 @@
 ## Para nuevo KD-Tree
 
 - [x] Cada nodo ahora tendrá una variable para guardar en qué dimensión se hace la disjunción.
-- [ ] La disjunción se hace por la dimensión más disjunta.
+- [x] La disjunción se hace por la dimensión más disjunta.
   - Si es nodo hoja, se usa la regla del KD-Tree normal.
   - Si tiene un sólo hijo, se verifica si el punto tiene al menos una dimensión disjunta con ese hijo.
     - Se selecciona la que tenga los rangos más disjuntos.
@@ -60,7 +60,7 @@
   - Si tienen la misma profundidad, se selecciona el que tenga más rangos contenidos (o menos, testear eso).
   - Si se iguala la cantidad de rangos, entonces se selecciona la menor distancia entre rangos.
 - [x] Que al insertar con un hijo nodo se evalue el cambiar al hijo de izq a der o viceversa, para poder así insertar en un nodo nulo casi siempre.
-- [ ] Los nodos guardarán una de las dimensiones que disjuntan a sus hijos.
+- [x] Los nodos guardarán una de las dimensiones que disjuntan a sus hijos.
 
 La distancia más cercana en la dimensión disjunta que estén más lejanos los rangos.
 
@@ -70,8 +70,11 @@ al eliminar:
 
 
 
-- [ ] Nodos visitados.
-- [ ] Profundidad
+- [x] Nodos visitados.
+- [x] Profundidad
 - [ ] arreglar insertar
+- [ ] Cambiar insertar, 
+- [ ] datos no insertados
+- [ ] 
 
 - [ ] Escribir seudo codigo de estructura, codigo de inserción y eliminación

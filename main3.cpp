@@ -52,18 +52,26 @@ void original(string uno, string dos){
     if(uno == "insertados"){
         cout << "insertados" << endl;
         
-        salida.open("SalidaOriginalI" + dos, std::ios::app);
+        salida.open("SalidaOriginalI" + dos + ".csv", std::ios::app);
     } else{
-        salida.open("SalidaOriginalNI" + dos, std::ios::app);
+        salida.open("SalidaOriginalNI" + dos + ".csv", std::ios::app);
     }
     //KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
-    
-    for(int i=0 ; i<((int)(MAX_NUM/2)) ; i++){
+    auto start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
         auto punto = (*numeros)[i];
         //arbolito->insertar(*punto);
         raiz = KDTree::insertar<DIM>(*punto, raiz);
     }
-    auto start = std::chrono::high_resolution_clock::now();
+    
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto elapsed = finish - start;
+    auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+    //salida << milisegundos << endl;
+    salida << milisegundos << ";"  << raiz->profundidad << ";";
+    
+
+
 
     int inicio, final;
     if(dos == "insertados"){
@@ -74,16 +82,24 @@ void original(string uno, string dos){
         final = MAX_NUM;
     }
 
+    int prom = 0;
+    int min = 1000000;
+    int max = -10;
     for(int i=0 ; i<MAX_NUM ; i++){
         auto punto = (*numeros)[i];
-        raiz->buscar(*punto);
+        int recorridos = raiz->buscar(*punto);
+        prom += recorridos;
+        if(max < recorridos){
+            max = recorridos;
+        }
+        if(min > recorridos){
+            min = recorridos;
+        }
         //arbolito->buscar(*punto);
     }
 
-    auto finish = std::chrono::high_resolution_clock::now();
-    auto elapsed = finish - start;
-    auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
-    salida << milisegundos << endl;
+    salida << prom/MAX_NUM << ";" << max << ";" << endl;
+    
 }
 
 void nuevo(string uno, string dos){
@@ -93,26 +109,43 @@ void nuevo(string uno, string dos){
     if(uno == "insertados"){
         cout << "insertados" << endl;
         
-        salida.open("SalidaNuevoI" + dos, std::ios::app);
+        salida.open("SalidaNuevoI" + dos + ".csv", std::ios::app);
     } else{
-        salida.open("SalidaNuevoNI" + dos, std::ios::app);
+        salida.open("SalidaNuevoNI" + dos + ".csv", std::ios::app);
     }
     KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
-    
-    for(int i=0 ; i<((int)(MAX_NUM/2)) ; i++){
+    auto start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
     }
-    auto start = std::chrono::high_resolution_clock::now();
-
-    for(int i=0 ; i<MAX_NUM ; i++){
-        auto punto = (*numeros)[i];
-        arbolito->buscar(*punto);
-    }
-
+    
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
     auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
-    salida << milisegundos << endl;
+
+    salida << milisegundos << ";" << arbolito->profundidad() + 1 << ";";
+
+
+
+
+    int prom =0;
+    int min = 1000000;
+    int max = -10;
+    for(int i=0 ; i<MAX_NUM ; i++){
+        auto punto = (*numeros)[i];
+        int cantidad = arbolito->buscar(*punto);
+        prom+= cantidad;
+        if(max < cantidad){
+            max = cantidad;
+        }
+        if(min > cantidad){
+            min = cantidad;
+        }
+    }
+
+    
+    //salida << prom/MAX_NUM << endl;
+    salida << prom/MAX_NUM << ";" << max << ";" << endl;
     
 }   

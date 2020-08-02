@@ -27,7 +27,7 @@ namespace KDTreeRange2{
             //      -1 si el pto recibido es menor
             //       0 si el pto recibido es igual
             //       1 si el pto recibido es mayor 
-            int compareD(std::vector<float>, int);
+            int compareD(std::vector<float>&, int);
             Punto(std::vector<float>);
             void imprimePunto();
             string strPunto();
@@ -57,7 +57,7 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    int Punto<k>::compareD(std::vector<float> punto, int dimension){
+    int Punto<k>::compareD(std::vector<float>& punto, int dimension){
         if(point[dimension] > punto[dimension])
             return -1;
         if(point[dimension] < punto[dimension])
@@ -123,7 +123,7 @@ namespace KDTreeRange2{
             Node(std::vector<float>);
 
             //Convierte todos los rangos del nodo en el punto.
-            void updateAllRange(std::vector<float>);
+            void updateAllRange(std::vector<float>&);
 
             //Actualiza el rango de una dimensión respecto al punto propio del nodo.
             void updateRange(int);
@@ -131,14 +131,13 @@ namespace KDTreeRange2{
             //Inserta un punto en el árbol.
             void insertar(std::vector<float>);
 
-            //Inserta un punto en el árbol. Versión nueva
-            void insertar2(std::vector<float>);
 
             //Actualiza la profundidad y los rangos de los nodos que contienen el nodo ingresado.
             void actualizarProfundidad(Node<k>*);
 
             //Busca un punto en el árbol.
-            Punto<k>* buscar(std::vector<float>);
+            /*Punto<k>* */ int buscar(std::vector<float>);
+            int buscarLazy(std::vector<float>);
 
 
             //Compara el punto del nodo con el punto ingresado, retorna true si son iguales, false en caso contrario.
@@ -150,7 +149,7 @@ namespace KDTreeRange2{
             //      Retorna -1 si debe ir en el sub-árbol de la izquierda.
             //      Retorna 1 si debe ir en el sub-árbol de la derecha.
             //      Retorna 0 el punto se encuentra en el medio de ambas.
-            int comparaCajitas(std::vector<float>);
+            int comparaCajitas(std::vector<float>&);
 
             //Imprime el árbol completo, mostrando los rangos, el nodo padre y de que lado está con respecto a este.
             void printTree();
@@ -188,11 +187,11 @@ namespace KDTreeRange2{
 
             //Retorna la dimensión en la que el punto no está contenido en los rangos del nodo
             //  Si no está contenido en ninguna de ellas, retorna -1.
-            int esDisjunto(std::vector<float>);
+            int esDisjunto(std::vector<float>&);
 
             //Retorna true si el punto ingresado está completamente contenido en el
             //  sub árbol, false en caso contrario.
-            bool contenido(std::vector<float>, int dim = -1);
+            bool contenido(std::vector<float>&, int dim = -1);
             
             // Retorna la dimensión por la cual se disjuntan los hijos
             int dimDisjunta();
@@ -224,7 +223,7 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    void Node<k>::updateAllRange(std::vector<float> punto){
+    void Node<k>::updateAllRange(std::vector<float>& punto){
         for(int i=0 ; i < k ; i++){
             rango[i][0] = punto[i];
             rango[i][1] = punto[i];
@@ -295,21 +294,6 @@ namespace KDTreeRange2{
                     continue;
                 }
 
-                
-                // Se verifica si pueden empujarse las dimensiones:
-                //      1- se ve en que dimensión es disjunta con el otro nodo insertado
-                //
-                //
-                //TODO: Esto no tiene mucho sentido, ver cómo se comporta el programa sin eso
-                //////int res2 = comparador->esDisjunto(actual->punto->point);
-                //////if(res2 == -1){
-                //////    
-                //////    //Si no hay dimensiones disjuntas, entonces se deberá seguir por el mismo lado.
-                //////    actual = comparador;
-                //////    continue;
-                //////    
-//////
-                //////}
 
 
                 // Acá se llega con res != -1, así que hay alguna dimensión disjunta
@@ -341,7 +325,7 @@ namespace KDTreeRange2{
                 }
                 aux->padre = actual;
                 aux->updateAllRange(punto);
-                aux->dimension = res;
+                aux->dimension = -1;
                 actualizarProfundidad(aux);
                 
                 return;
@@ -377,46 +361,7 @@ namespace KDTreeRange2{
         }
 
     }
-    
-    template<int k>
-    void Node<k>::insertar2(std::vector<float> puntos){
-
-        bool insertado = false;
-        int dimension = 0;
-        Node<k> *actual = this;
-        Node<k>* aux = new Node(puntos);
-        while(!insertado){
-            Punto<k> punto = *actual->punto;
-
-            //Si no tiene hijos, se usa la regla del kd-tree original
-            if(actual->left == nullptr && actual->right == nullptr){
-
-                if( punto.getVal(dimension) < puntos[dimension]){
-                    //se inserta en la derecha
-                    actual->right = aux;
-                    aux->padre = actual;
-                    aux->actualizarProfundidad();
-                    return;
-                } else{
-
-                    actual->left = aux;
-                    aux->left =nullptr;
-                    aux->padre = actual;
-                    aux->actualizarProfundidad();
-                    return;
-
-                }
-            }
-
-
-            
-                
-            
-            //Se cicla sobre las dimensiones
-            dimension = (dimension + 1) % k;
-        }
-
-    }
+   
 
     template<int k>
     void Node<k>::actualizarProfundidad(Node* nodo){
@@ -455,22 +400,23 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    Punto<k>* Node<k>::buscar(std::vector<float> punto){
+    /*Punto<k>* */int Node<k>::buscar(std::vector<float> punto){
         //cout << "\n\n" << endl;
         Node* actual = this;
         Punto<k>* auxPunto;
+        int visitados = 1;
         //cout << "Se busca: " << punto[0] << ", " << punto[1] << ", " << punto[2] << endl;
         while(actual != nullptr){
             auxPunto = actual->punto;
             //cout << auxPunto->strPunto() << endl;
             //Si es el mismo, retornarlo
             if(actual->compare(punto)){
-                return actual->punto;
+
+                return visitados;// actual->punto;
             }
                 
             //Si tiene un hijo, se compara la caja nomas
 
-            //FIXME: versión "lazy"
             //Si tiene 2 hijos, se compara la dim disjunta de un hijo de manera normal,
             //  sino, se va al otro hijo
 
@@ -480,13 +426,16 @@ namespace KDTreeRange2{
                 }
                 if(actual->right && actual->right->contenido(punto, actual->dimension)){
                     actual = actual->right;
+                    visitados++;
                     continue;
                 } else if(actual->left && actual->left->contenido(punto, actual->dimension)){
                     actual = actual->left;
+                    visitados++;
                     continue;
 
                 }else{
-                    return nullptr;
+                    return -1;
+                    //return nullptr;
                 }   
             }
             //Si llega hasta acá significa que tiene 2 hijos.
@@ -499,28 +448,69 @@ namespace KDTreeRange2{
             ///    actual= actual->right;
             ///}
             ///////Si está contenido completamente en la caja de la derecha, se sigue por allá.
-            if(actual->left && actual->right){
-                    cout << actual->strPunto() << " dim: " << actual->dimension << endl;
-            }
+           
 
             if(actual->right && actual->right->contenido(punto, actual->dimension)){
                 actual = actual->right;
+                visitados++;
                 //cout << "der"<<endl;
                 continue;
             }
 
+
+            
             //Si está contenido completamente en la caja de la izquierda, se sigue por allá.
             if(actual->left && actual->left->contenido(punto, actual->dimension)){
                 actual = actual->left;
                 //cout << "izq"<<endl;
+                visitados++;
                 continue;
             }
 
-            return nullptr;
+            return -1;//nullptr;
         }
 
 
-        return nullptr;
+        return -1;//nullptr;
+    }
+
+    template<int k>
+    /*Punto<k>* */int Node<k>::buscarLazy(std::vector<float> punto){
+        Node* actual = this;
+        Punto<k>* auxPunto;
+        int visitados = 1;
+
+        while(actual != nullptr){
+            auxPunto = actual->punto;
+
+            if(actual->compare(punto)){
+                return visitados;// actual->punto;
+            }
+                
+            //Si tiene un hijo, se compara la caja nomas
+
+            //Si tiene 2 hijos, se compara la dim disjunta de un hijo de manera normal,
+            //  sino, se va al otro hijo
+           
+
+            if(actual->right && actual->right->rango[actual->dimension][0] <= punto[actual->dimension]){
+                //cout << "false" << endl;
+                actual = actual->right;
+                visitados++;
+                continue;
+
+            } else if(actual->left) {
+                actual = actual->left;
+                visitados++;
+                continue;
+            }
+                    
+
+            return -1;//nullptr;
+        }
+
+
+        return -1;//nullptr;
     }
 
 
@@ -529,7 +519,7 @@ namespace KDTreeRange2{
 
 
     template<int k>
-    int Node<k>::comparaCajitas(std::vector<float> val){
+    int Node<k>::comparaCajitas(std::vector<float>& val){
         /**
          *      CÓMO SE PODRÍA HACER: **ASUMIENDO DE  QUE NINGÚN HIJO ES NULO**
          *  1- Se debe cumplir con que quede al menos una dimensión disjunta.
@@ -539,12 +529,15 @@ namespace KDTreeRange2{
          */
         int res[2];
         //Si pertenece completamente en la cajita de la izquierda, se inserta ahí
-        if(this->left != nullptr && this->left->contenido(val)){
+        // ////this->left->contenido(val, this->dimension)
+        if(this->left != nullptr && this->left->rango[this->dimension][1] >= val[this->dimension]){
             return -1;
         }
 
         //Si pertenece completamente en la cajita de la derecha, se inserta ahí
-        if(this->right != nullptr && this->right->contenido(val)){
+        ///   ////this->right->contenido(val, this->dimension)
+        if(this->right != nullptr && this->right->rango[this->dimension][0] <= val[this->dimension]){
+
             return 1;
         }
 
@@ -1002,7 +995,7 @@ namespace KDTreeRange2{
 
     //Retorna la dimensión en la  que el punto es disjunto con el rango del nodo
     template<int k>
-    int Node<k>::esDisjunto(std::vector<float> val){
+    int Node<k>::esDisjunto(std::vector<float>& val){
         for(int i=0 ; i<k ; i++){
             //Si el punto no está contenido en el rango, se retorna la dimensión.
             if(rango[i][0] > val[i] || rango[i][1] < val[i])
@@ -1013,7 +1006,7 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    bool Node<k>::contenido(std::vector<float> val, int dim){
+    bool Node<k>::contenido(std::vector<float>& val, int dim){
         if(dim == -1){
             for(int i=0 ; i<k ; i++){
                 //Si el rango está contenido, se retorna la dimensión en la que está.
@@ -1093,7 +1086,8 @@ namespace KDTreeRange2{
             int profundidad();
             Node<k>* insertar(std::vector<float>);
             void mostrarArbol();
-            Punto<k>* buscar(std::vector<float>);
+            /*Punto<k>* */int buscar(std::vector<float>);
+            int buscarLazy(std::vector<float>);
             Punto<k>* eliminar(std::vector<float>);
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
@@ -1137,9 +1131,16 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    Punto<k>* KDTreeR2<k>::buscar(std::vector<float> punto){
+    /*Punto<k>* */ int KDTreeR2<k>::buscar(std::vector<float> punto){
         return raiz->buscar(punto);
     }
+
+    template<int k>
+    /*Punto<k>* */ int KDTreeR2<k>::buscarLazy(std::vector<float> punto){
+        return raiz->buscarLazy(punto);
+    }
+
+
 
     template<int k>
     Punto<k>* KDTreeR2<k>::eliminar(std::vector<float> punto){
