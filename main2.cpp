@@ -73,7 +73,7 @@ int main(int argc, char** argv){
     arbol->toJson();
     cout << numeros[0][0] << ", " << numeros[0][1] << endl;
     for(auto num : numeros){
-        auto busqueda = arbol->buscarLazy(num);
+        auto busqueda = arbol->buscar(num);
         if(busqueda == -1){
             cout << "1not found (" << num[0] << ", " << num[1] << ", " << num[2] << ")\n"; 
         }

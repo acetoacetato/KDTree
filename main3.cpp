@@ -66,9 +66,9 @@ void original(string uno, string dos){
     
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
-    auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+    auto milisegundosI = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
     //salida << milisegundos << endl;
-    salida << milisegundos << ";"  << raiz->profundidad << ";";
+    salida << milisegundosI << ";"  << raiz->profundidad << ";";
     
 
 
@@ -82,9 +82,12 @@ void original(string uno, string dos){
         final = MAX_NUM;
     }
 
+    
+
     int prom = 0;
     int min = 1000000;
     int max = -10;
+    start = std::chrono::high_resolution_clock::now();
     for(int i=0 ; i<MAX_NUM ; i++){
         auto punto = (*numeros)[i];
         int recorridos = raiz->buscar(*punto);
@@ -98,7 +101,13 @@ void original(string uno, string dos){
         //arbolito->buscar(*punto);
     }
 
-    salida << prom/MAX_NUM << ";" << max << ";" << endl;
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosB = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+
+
+    //Tiempo insercion ; profundidad ; tiempo busqueda ; visitados
+    salida << milisegundosB << ";" << prom/MAX_NUM << ";" << endl;
     
 }
 
@@ -132,6 +141,8 @@ void nuevo(string uno, string dos){
     int prom =0;
     int min = 1000000;
     int max = -10;
+
+    start = std::chrono::high_resolution_clock::now();
     for(int i=0 ; i<MAX_NUM ; i++){
         auto punto = (*numeros)[i];
         int cantidad = arbolito->buscar(*punto);
@@ -144,8 +155,26 @@ void nuevo(string uno, string dos){
         }
     }
 
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosBN = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
     
     //salida << prom/MAX_NUM << endl;
-    salida << prom/MAX_NUM << ";" << max << ";" << endl;
+    salida << milisegundosBN << ";" << prom/MAX_NUM << ";";
+
+
+    prom = 0;
+    start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<MAX_NUM ; i++){
+        auto punto = (*numeros)[i];
+        int cantidad = arbolito->buscarLazy(*punto);
+        prom+= cantidad;
+    }
+
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosBL = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+
+    salida << milisegundosBL << ";" << prom/MAX_NUM << ";" << endl;
     
 }   

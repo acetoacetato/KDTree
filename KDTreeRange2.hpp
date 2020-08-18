@@ -499,14 +499,12 @@ namespace KDTreeRange2{
                 visitados++;
                 continue;
 
-            } else if(actual->left) {
+            } else {
                 actual = actual->left;
                 visitados++;
                 continue;
             }
-                    
 
-            return -1;//nullptr;
         }
 
 
