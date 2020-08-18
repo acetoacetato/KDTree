@@ -946,6 +946,13 @@ namespace KDTreeRange{
       return dist;
     }
     
+    
+    template<int k>
+    float Node<k>::distanceDisj(std::vector<float> ref){
+      float dist = abs( ref[dimension] - punto->point[dimension]);
+      return dist;
+    
+    }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1142,8 +1149,7 @@ namespace KDTreeRange{
        Node<k>* aux,aux1;
        while(actual != nullptr){
            //se llena la lista de manera ordenada
-           if(l.size()< n )
-           {
+           if(l.size()< n ){
                aux=actual;
                for(int i=0;i<l.size();i++){
                    aux1=l.front();
@@ -1184,7 +1190,7 @@ namespace KDTreeRange{
            distAct=actual->left->distanceRange(ref);
            if(distance > distAct)
                q->instertar(actual->left,distAct);
-           
+               
            distAct=actual->right->distanceRange(ref);
            if(distance > distAct)
                q->instertar(actual->right,distAct);

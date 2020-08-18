@@ -100,12 +100,12 @@ int main(int argc, char** argv){
     cout << "aaa"<< endl;
     Punto<3>* p = arbolito->buscar(numeros[numerote]);
 
-    cout << "No nominados por ";
-    p->imprimePunto();
-    cout << endl;
-    for(auto nodo : l){
-        cout << nodo->strPunto() << endl;
-    }
+    //cout << "No nominados por ";
+    //p->imprimePunto();
+    //cout << endl;
+    //for(auto nodo : l){
+    //    cout << nodo->strPunto() << endl;
+    //}
 
     arbolito->toJson();
 

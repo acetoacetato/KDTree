@@ -1,10 +1,12 @@
 treant-js-master
-Nuevo.txt
-Antiguo.txt
-a.exe
 KDTreeRange2.hpp.gch
 arbolito.json
-main2.exe
 thegame.txt
 arbolito.json
 D3
+Graficador
+vars.hpp
+*.csv
+*.js
+*.txt
+*.exe
