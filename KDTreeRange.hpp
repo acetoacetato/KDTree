@@ -974,7 +974,7 @@ namespace KDTreeRange{
             list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
             void eliminaPuntosInsideBox(std::vector<float>, std::vector<float>);
             Node<k>* vecinoMasCercano(std::vector<float>;
-            list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float>, int)
+            list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float>, int);
 
     };
 

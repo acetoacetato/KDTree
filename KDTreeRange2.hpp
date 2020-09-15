@@ -121,6 +121,9 @@ namespace KDTreeRange2{
 
             //Constructor
             Node(std::vector<float>);
+            
+            //Destructor
+            ~Node();
 
             //Convierte todos los rangos del nodo en el punto.
             void updateAllRange(std::vector<float>&);
@@ -195,6 +198,22 @@ namespace KDTreeRange2{
             
             // Retorna la dimensión por la cual se disjuntan los hijos
             int dimDisjunta();
+            
+            
+            //Retorna true si el punto se encuentra en una caja representada por el punto menor y el punto mayor
+            bool insideBox(std::vector<float> , std::vector<float>);
+            
+            //Retorna true si el rango del subarbol contiene alguna seccion en la caja
+            bool rangeInsideBox(std::vector<float> , std::vector<float>);
+            
+            //Retorna true si el rango se encuentra completo en la caja
+            bool rangeFullInsideBox(std::vector<float> , std::vector<float>);
+            
+            //Retorna la distancia Euclidiana desde el punto de referencia al punto del nodo
+            float distacePoint(std::vector<float>);
+            
+            //Retorna la distancia Euclidiana desde el punto de referencia al rango del nodo
+            float distanceRange(std::vector<float>);
 
 
 
@@ -220,6 +239,13 @@ namespace KDTreeRange2{
         left = nullptr;
         right = nullptr;
         padre = nullptr;
+    }
+    
+    template<int k>
+    Node<k>::~Node(){
+      if(left!=nullptr)left->~Node();
+      if(right!=nullptr)right->~Node();
+      delete[] punto;
     }
 
     template<int k>
@@ -1068,6 +1094,70 @@ namespace KDTreeRange2{
         //cout << right->strRangos()<< endl;
         return -1;
     }
+    
+    template<int k>
+    bool Node<k>::insideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((punto->point[i] < menor[i]) || (punto->point[i] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    template<int k>
+    bool Node<k>::rangeInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((rango[i][1] < menor[i]) || (rango[i][0] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    template<int k>
+    bool Node<k>::rangeFullInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      for(int i=0;i<k;i++){
+        if((rango[i][0] < menor[i]) || (rango[i][1] > mayor[i])){
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    template<int k>
+    float Node<k>::distancePoint(std::vector<float> ref){
+      float dist= 0.0f;
+      float calc;
+      for(int i=0;i<k;i++){
+        calc = punto->point[i]-ref[i]
+        dist = dist + calc * calc;
+      }
+      return dist;
+    }
+    
+    template<int k>
+    float Node<k>::distanceRange(std::vector<float> ref){
+      float dist= 0.0f;
+      float calc;
+      for(int i=0;i<k;i++){
+        if(ref[i] > rango[i][1])
+          calc = ref[i]-rango[i][1];
+          dist = dist + calc * calc;
+        else if(ref[i] < rango[i][0])
+          calc = ref[i]-rango[i][0]
+          dist = dist + calc * calc;
+      }
+      return dist;
+    }
+    
+    
+    template<int k>
+    float Node<k>::distanceDisj(std::vector<float> ref){
+      float dist = abs( ref[dimension] - punto->point[dimension]);
+      return dist;
+    
+    }
 
 
 
@@ -1091,6 +1181,10 @@ namespace KDTreeRange2{
             list<Node<k>*> puntosNoDominados(std::vector<float>);
             void rangoHijos();
             void actualizaDim();
+            list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
+            void eliminaPuntosInsideBox(std::vector<float>, std::vector<float>);
+            Node<k>* vecinoMasCercano(std::vector<float>;
+            list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float>, int);
 
     };
 
@@ -1215,6 +1309,146 @@ namespace KDTreeRange2{
             cout << "[]" << endl;
         }
     }
+    
+    template<int k>
+    list<Node<k>*> KDTreeR<k>::puntosInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      std::queue <Node<k>*> q;
+      std::list <Node<k>*> l;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front();
+        if(actual->insideBox(menor,mayor)){
+          l.push_back(actual);
+        }
+        if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor))
+          q.push(actual->left);
+        if(actual->right != nullptr && actual->right->rangeInsideBox(menor,mayor))
+          q.push(actual->right);
+        q.pop();
+      }
+      
+      return l;
+    }
+    
+    
+    template<int k>
+    void KDTreeR<k>::eliminaPuntosInsideBox(std::vector<float> menor, std::vector<float> mayor){
+      std::queue<Node<k>*> q;
+      q.push(raiz);
+      while(!q.empty()){
+        Node<k>* actual=q.front();
+        if(actual->insideBox(menor,mayor)){
+          actual->eliminar(actual->punto->point);
+        }
+        if(actual->left != nullptr && actual->left->rangeInsideBox(menor,mayor)){
+          if(actual->left->rangeFullInsideBox(menor,mayor)){
+            actual->left->~Node();
+          }
+          else{
+            q.push(actual->left);
+          }
+        }
+        if(actual->right != nullptr && actual->right->rangeInsideBox(menor,mayor))
+          if(actual->right->rangeFullInsideBox(menor,mayor)){
+            actual->right->~Node();
+          }
+          else{
+            q.push(actual->right);
+          }
+        q.pop();
+      }
+    
+    }
+    
+    template<int k>
+    Node<k>* KDTreeR<k>::vecinoMasCercano(std::vector<float> ref){
+       PriorityQueue q;
+       Node<k>* vecino;
+       float distance=999999.9f;
+       float distAct;
+       Node<k>* actual = raiz;
+       while(actual != nullptr){
+           distAct=actual->distancePoint(ref);
+           //se reemplaza el vecino
+           if(distance > distAct){
+               vecino = actual;
+               distance = distAct;
+           }
+           //se agregan los subarboles
+           distAct=actual->left->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->left,distAct);
+           
+           distAct=actual->right->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->right,distAct);
+           //se obtiene el siguiente para operar
+           actual=(Node<k>*)q->pop();
+       }
+       return vecino;
+    }
+    
+    template<int k>
+    list<Node<k>*> KDTreeR<k>::vecinosMasCercano(std::vector<float> ref, int n){
+       std::list<Node<k>*> l;
+       PriorityQueue q;
+       float distance=999999.9f;
+       float distAct;
+       Node<k>* actual = raiz;
+       Node<k>* aux,aux1;
+       while(actual != nullptr){
+           //se llena la lista de manera ordenada
+           if(l.size()< n ){
+               aux=actual;
+               for(int i=0;i<l.size();i++){
+                   aux1=l.front();
+                   l.pop_front();
+                   if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
+                     l.push_back(aux);
+                     aux=aux1;
+                   }
+                   else{
+                     l.push_back(aux1);
+                   }
+               }
+               distance=aux->distancePoint(ref);
+               l.push_back(aux);
+           }
+           //se reemplaza el nuevo nodo si es mas cercano al ultimo de la lista, de manera ordenada
+           else{
+               distAct=actual->distancePoint(ref);
+               if(distAct< distance){
+               
+                 aux=actual;
+                 for(int i=0;i<l.size();i++){
+                     aux1=l.front();
+                     l.pop_front();
+                     if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
+                       l.push_back(aux);
+                       aux=aux1;
+                     }
+                     else{
+                       l.push_back(aux1);
+                     }
+                 }
+                 distance=(l.back())->distancePoint(ref);
+               
+               }
+           }
+           //se agregan los subarboles
+           distAct=actual->left->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->left,distAct);
+               
+           distAct=actual->right->distanceRange(ref);
+           if(distance > distAct)
+               q->instertar(actual->right,distAct);
+           //se obtiene el siguiente para operar
+           actual=(Node<k>*)q->pop();
+       }
+       return l;
+    }
+    
     
 
     
