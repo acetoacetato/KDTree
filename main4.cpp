@@ -57,26 +57,57 @@ void original(string uno, string dos){
         salida.open("SalidaOriginalNI" + dos + ".csv", std::ios::app);
     }
     //KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
+    auto start = std::chrono::high_resolution_clock::now();
     for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
         auto punto = (*numeros)[i];
         //arbolito->insertar(*punto);
         raiz = KDTree::insertar<DIM>(*punto, raiz);
     }
-    auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
-    auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = raiz->knn(*ultimoPunto,10);
-
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
     auto milisegundosI = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
     //salida << milisegundos << endl;
-    salida << milisegundosI << ";"  << nodos << ";\n";
+    salida << milisegundosI << ";"  << raiz->profundidad << ";";
     
 
 
 
+    int inicio, final;
+    if(dos == "insertados"){
+        inicio = 0;
+        final = MAX_NUM/2;
+    } else{
+        inicio = MAX_NUM/2;
+        final = MAX_NUM;
+    }
+
     
+
+    int prom = 0;
+    int min = 1000000;
+    int max = -10;
+    start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<MAX_NUM ; i++){
+        auto punto = (*numeros)[i];
+        int recorridos = raiz->buscar(*punto);
+        prom += recorridos;
+        if(max < recorridos){
+            max = recorridos;
+        }
+        if(min > recorridos){
+            min = recorridos;
+        }
+        //arbolito->buscar(*punto);
+    }
+
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosB = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+
+
+    //Tiempo insercion ; profundidad ; tiempo busqueda ; visitados
+    salida << milisegundosB << ";" << prom/MAX_NUM << ";" << endl;
     
 }
 
@@ -92,20 +123,58 @@ void nuevo(string uno, string dos){
         salida.open("SalidaNuevoNI" + dos + ".csv", std::ios::app);
     }
     KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
-    
+    auto start = std::chrono::high_resolution_clock::now();
     for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
     }
-    auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
-    auto start = std::chrono::high_resolution_clock::now();
-    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,10);
     
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
     auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
 
-    salida << milisegundos << ";" << nodos << ";\n";
+    salida << milisegundos << ";" << arbolito->profundidad() + 1 << ";";
 
+
+
+
+    int prom =0;
+    int min = 1000000;
+    int max = -10;
+
+    start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<MAX_NUM ; i++){
+        auto punto = (*numeros)[i];
+        int cantidad = arbolito->buscar(*punto);
+        prom+= cantidad;
+        if(max < cantidad){
+            max = cantidad;
+        }
+        if(min > cantidad){
+            min = cantidad;
+        }
+    }
+
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosBN = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+    
+    //salida << prom/MAX_NUM << endl;
+    salida << milisegundosBN << ";" << prom/MAX_NUM << ";";
+
+
+    prom = 0;
+    start = std::chrono::high_resolution_clock::now();
+    for(int i=0 ; i<MAX_NUM ; i++){
+        auto punto = (*numeros)[i];
+        int cantidad = arbolito->buscarLazy(*punto);
+        prom+= cantidad;
+    }
+
+    finish = std::chrono::high_resolution_clock::now();
+    elapsed = finish - start;
+    auto milisegundosBL = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
+
+    salida << milisegundosBL << ";" << prom/MAX_NUM << ";" << endl;
     
 }   

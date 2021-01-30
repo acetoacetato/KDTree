@@ -79,7 +79,7 @@ class Node{
         float distancia(std::vector<float>);
 
         // Retorna los K vecinos más cercanos al punto 
-        std::list<Node<k>*> knn(std::vector<float>, int);
+        int knn(std::vector<float>, int);
 };
 
 
@@ -272,7 +272,7 @@ struct lex_compare {
 
 // Retorna los K vecinos más cercanos al punto 
 template<int k>
-std::list<Node<k>*> Node<k>::knn(std::vector<float> pto, int cant){
+int Node<k>::knn(std::vector<float> pto, int cant){
 
     // Estructura auxiliar para guardar referencia al nodo y su distancia al punto.
     typedef struct par{
@@ -302,6 +302,7 @@ std::list<Node<k>*> Node<k>::knn(std::vector<float> pto, int cant){
 
     bool insertado = false;
     int dimension = 0;
+    int cantNodos = 0;
     std::queue<Node<k>*> pendientes;
     std::set<par, lex_compare> nn;
     std::set<Node<k>*, lex_compare_nodo> visitados;
@@ -343,6 +344,7 @@ std::list<Node<k>*> Node<k>::knn(std::vector<float> pto, int cant){
 
     // Se va subiendo y comparando con los hijos.
     while(!pendientes.empty()){
+        cantNodos = cantNodos + 1;
         auto aux = pendientes.front();
         pendientes.pop();
         visitados.insert(aux);
@@ -383,15 +385,13 @@ std::list<Node<k>*> Node<k>::knn(std::vector<float> pto, int cant){
         if(aux->padre != nullptr && visitados.find(aux->padre) == visitados.end() ){
             pendientes.push(aux->padre);
         }
-        //Se reduce la dimensión en cada iteración
-        dimension = (dimension - 1 < 0)? k:(dimension - 1);
     }
     std::list<Node<k>*> retorno;
 
      for (auto p = nn.begin(); p != nn.end(); ++p)
         retorno.push_back((*p).nodo);
 
-    return retorno;
+    return cantNodos;
 
 
   

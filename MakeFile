@@ -19,7 +19,7 @@ generator:
 	$(CC) $(CFLAGS) generaPuntos.cpp Argument_helper/*.cc -o generaPuntos.exe 
 
 rungenerate: generator
-	./generaPuntos.exe -m $(m) -d $(d)
+	./generaPuntos.exe -m $(m) -M $(m1) -d $(d)
 
 
 runtest: rungenerate $(PROJECT) 

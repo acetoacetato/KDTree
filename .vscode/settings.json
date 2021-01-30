@@ -47,7 +47,9 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp"
     },
     "cmake.configureOnOpen": false
 }
