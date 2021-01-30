@@ -57,7 +57,7 @@ void original(string uno, string dos){
         salida.open("SalidaOriginalNI" + dos + ".csv", std::ios::app);
     }
     //KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
-    for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
+    for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         //arbolito->insertar(*punto);
         raiz = KDTree::insertar<DIM>(*punto, raiz);
@@ -93,7 +93,7 @@ void nuevo(string uno, string dos){
     }
     KDTreeRange2::KDTreeR2<3>* arbolito = new KDTreeRange2::KDTreeR2<3>();
     
-    for(int i=0 ; i<((int)(MAX_NUM)) ; i++){
+    for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
     }

@@ -14,6 +14,7 @@ class Punto{
     public:
         std::vector<float> point;
 
+
         //Retorna el valor de la n-esima dimensión dado un iterador.
         float getVal(int);
         bool compare(std::vector<float>&);
@@ -245,8 +246,10 @@ void Node<k>::toJson(ofstream& file, int pos){
 template<int k>
 float Node<k>::distancia(std::vector<float> pto){
     float suma = 0;
+    float calc;
     for(int i=0 ; i<k ; i++){
-        suma += pow(punto->point[i] - pto[i], 2);
+        calc = punto->point[i]-pto[i];
+        suma = suma + calc * calc;
     }
     return sqrt(suma);
 
@@ -287,7 +290,7 @@ int Node<k>::knn(std::vector<float> pto, int cant){
             if(lhs.dist == rhs.dist){
                 return lhs.nodo != rhs.nodo;
             }
-            return lhs.dist < rhs.dist;
+            return lhs.dist <= rhs.dist;
         }
     };  
 
@@ -300,16 +303,19 @@ int Node<k>::knn(std::vector<float> pto, int cant){
     };  
     //TODO: la distancia para los ultimos if es solo de la dim disjunta
 
-    bool insertado = false;
+    //variables
     int dimension = 0;
-    int cantNodos = 0;
+    int cantNodos = 1;
     std::queue<Node<k>*> pendientes;
     std::set<par, lex_compare> nn;
     std::set<Node<k>*, lex_compare_nodo> visitados;
     Node<k> *actual = this;
-    Node<k>* mejor = nullptr;
+
+    // seccion de insercion para buscar el mejor punto para partir
+    bool insertado = false;
     while(!insertado){
         Punto<k> punto = *actual->punto;
+        dimension = actual->profundidad; 
         if( punto.getVal(dimension) < pto[dimension]){
             
             //se llegó a la "hoja"
@@ -325,57 +331,60 @@ int Node<k>::knn(std::vector<float> pto, int cant){
 
             actual = actual->left;
         }
-            
-        
-        //Se cicla sobre las dimensiones
-        dimension = (dimension + 1) % k;
     }
-    par aux;
-    aux.nodo = actual;
-    aux.dist = actual->distancia(pto);
-    nn.insert(aux);
-    visitados.insert(actual);
-
     pendientes.push(actual);
     
     
         
 
-
+    //inicio iteraciones knn
     // Se va subiendo y comparando con los hijos.
     while(!pendientes.empty()){
         cantNodos = cantNodos + 1;
+
+        //seccion de comprobacion
         auto aux = pendientes.front();
         pendientes.pop();
+        if(visitados.find(aux) != visitados.end() ){
+            continue;
+        }
+        dimension = aux->profundidad; 
         visitados.insert(aux);
 
         // Se calcula la distancia del punto parametro al punto aux.
-        int dist = aux->distancia(pto);
+        float dist = aux->distancia(pto);
 
         // Si está más cerca que el peor vecino 
         //  y aún no se tienen n vecinos cercanos
-        if(nn.size() <= cant || (*std::prev(nn.end())).dist < dist ){
+        //se llena de manera ordenada para cualquier caso
+        if(nn.size() < cant || (*std::prev(nn.end())).dist > dist ){
             par puntito;
             puntito.dist = dist;
             puntito.nodo = aux;
             nn.insert(puntito);
 
             // Se elimina el último elemento si se excede la cantidad de vecinos cercanos
-            if(nn.size() > cant)
+            while(nn.size() > cant){
                 nn.erase(std::prev(nn.end()));
+            }
         }
-        //cout << "segundo " << ((*std::prev(nn.end())).dist < abs(pto[dimension] - aux->left->punto->point[dimension]) || nn.size() < cant ) << endl;
-        //Me dolió demasiado esta línea:
-        //  Si el hijo no ha sido visitado y es un potencial vecino cercano, se inserta para recorrerlo
+        
+
+        /* 
+            aqui deberia estar el error, a menos que la estructura se este ordenando ensentido inverso
+        */
+
+        //filtro de subarboles y nodos padre
+
         if(aux->left != nullptr && visitados.find(aux->left) == visitados.end()){
-            if(nn.size() <= cant ||   ((*std::prev(nn.end())).dist < abs(pto[dimension] - aux->left->punto->point[dimension])))   {
+            if(nn.size() < cant ||   ((*std::prev(nn.end())).dist > abs(pto[dimension] - aux->punto->point[dimension])))   {
                 pendientes.push(aux->left);
             }
             
         }
 
         if(aux->right != nullptr && visitados.find(aux->right) == visitados.end()){
-            if(nn.size() <= cant ||   ((*std::prev(nn.end())).dist < abs(pto[dimension] - aux->right->punto->point[dimension])))   {
+            if(nn.size() < cant ||   ((*std::prev(nn.end())).dist > abs(pto[dimension] - aux->punto->point[dimension])))   {
                 pendientes.push(aux->right);
             }
             
@@ -386,10 +395,26 @@ int Node<k>::knn(std::vector<float> pto, int cant){
             pendientes.push(aux->padre);
         }
     }
-    std::list<Node<k>*> retorno;
+        std::list<Node<k>*> retorno;
 
-     for (auto p = nn.begin(); p != nn.end(); ++p)
+        //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
+
+
+        cout << "punto inicial\n";
+
+        for(int j = 0; j < k; j++){
+                cout << pto[j] << " ";
+            }
+        cout << "\n-------------------------\n";
+
+        for (auto p = nn.begin(); p != nn.end(); ++p){
+         Node<k>* aux4 = (*p).nodo;
+         for(int f = 0 ; f < k; f++){
+             cout << (*p).nodo->punto->point[f] << " ";
+         }
+        cout << "distancia = " << (*p).dist << " \n";
         retorno.push_back((*p).nodo);
+     }
 
     return cantNodos;
 

@@ -6,6 +6,7 @@
 #include <list>
 #include <fstream>
 #include<array>
+#include <set>
 
 #include <math.h>
 
@@ -146,7 +147,7 @@ namespace KDTreeRange2{
 
             //Busca un punto en el árbol.
             /*Punto<k>* */ int buscar(std::vector<float>);
-            int buscarLazy(std::vector<float>);
+            Node<k>* buscarLazy(std::vector<float>);
 
 
             //Compara el punto del nodo con el punto ingresado, retorna true si son iguales, false en caso contrario.
@@ -510,7 +511,7 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    /*Punto<k>* */int Node<k>::buscarLazy(std::vector<float> punto){
+    /*Punto<k>* */Node<k>* Node<k>::buscarLazy(std::vector<float> punto){
         Node* actual = this;
         Punto<k>* auxPunto;
         int visitados = 1;
@@ -519,7 +520,7 @@ namespace KDTreeRange2{
             auxPunto = actual->punto;
 
             if(actual->compare(punto)){
-                return visitados;// actual->punto;
+                return actual;// actual->punto;
             }
                 
             //Si tiene un hijo, se compara la caja nomas
@@ -543,7 +544,7 @@ namespace KDTreeRange2{
         }
 
 
-        return -1;//nullptr;
+        return nullptr;//nullptr;
     }
 
 
@@ -1142,7 +1143,7 @@ namespace KDTreeRange2{
         calc = punto->point[i]-ref[i];
         dist = dist + calc * calc;
       }
-      return dist;
+      return sqrt(dist);
     }
     
     template<int k>
@@ -1186,7 +1187,7 @@ namespace KDTreeRange2{
             Node<k>* insertar(std::vector<float>);
             void mostrarArbol();
             /*Punto<k>* */int buscar(std::vector<float>);
-            int buscarLazy(std::vector<float>);
+            Node<k>* buscarLazy(std::vector<float>);
             Punto<k>* eliminar(std::vector<float>);
             void toJson();
             list<Node<k>*> puntosNoDominados(std::vector<float>);
@@ -1239,7 +1240,7 @@ namespace KDTreeRange2{
     }
 
     template<int k>
-    /*Punto<k>* */ int KDTreeR2<k>::buscarLazy(std::vector<float> punto){
+    /*Punto<k>* */ Node<k>* KDTreeR2<k>::buscarLazy(std::vector<float> punto){
         return raiz->buscarLazy(punto);
     }
 
@@ -1401,18 +1402,54 @@ namespace KDTreeRange2{
     
     template<int k>
     int KDTreeR2<k>::vecinosMasCercano(std::vector<float> ref, int n){
+        struct lex_compare_nodo {
+            bool operator() (const Node<k>* lhs, const Node<k>* rhs) const {
+                std::vector<float> origen = {0,0,0};
+                return lhs < rhs;
+            }
+        }; 
+
+
+        //variables
        std::list<Node<k>*> l;
        std::queue<Node<k>*> q;
+       std::set<Node<k>*, lex_compare_nodo> visitados;
        int prof = 1;
        float distance=999999.9f;
        float distAct;
        Node<k>* actual;
        Node<k>* aux;
        Node<k>* aux1;
-       q.push(raiz);
+
+        //seccion de insercion para buscar el mejor punto para partir
+       insertar(ref);
+       aux = buscarLazy(ref);
+       if(aux->padre != nullptr)
+        aux = aux->padre;
+        else
+        {
+            return 0;
+        }
+        
+       eliminar(ref);
+       q.push(aux);
+
+        //inicio iteraciones knn
        while(!q.empty()){
+           prof=prof+1;
+
+
+           //seccion de comprobacion
            actual=q.front();
+           q.pop();
+           if(visitados.find(actual) != visitados.end()){
+               continue;
+           }
+           visitados.insert(actual);
+
+
            //se llena la lista de manera ordenada
+           //primero para el caso de vecindario no lleno
            if(l.size()< n ){
                aux=actual;
                for(int i=0;i<l.size();i++){
@@ -1430,6 +1467,7 @@ namespace KDTreeRange2{
                l.push_back(aux);
            }
            //se reemplaza el nuevo nodo si es mas cercano al ultimo de la lista, de manera ordenada
+           //se trabaja con el vacindario completo
            else{
                distAct=actual->distancePoint(ref);
                if(distAct< distance){
@@ -1451,20 +1489,42 @@ namespace KDTreeRange2{
                }
            }
            //se agregan los subarboles
-           if(actual->left !=nullptr){
-            distAct=actual->left->distanceRange(ref);
+
+           //filtro de subarboles y nodos padre
+           distance = (l.back())->distancePoint(ref);
+           if(actual->left !=nullptr && visitados.find(actual->left) == visitados.end()){
+            distAct=abs(actual->punto->point[actual->dimension]-ref[actual->dimension]);
             if(distance > distAct || l.size()< n)
                q.push(actual->left);
            }
-           if(actual->right != nullptr){    
-            distAct=actual->right->distanceRange(ref);
+           if(actual->right != nullptr && visitados.find(actual->right) == visitados.end()){    
+            distAct=abs(actual->punto->point[actual->dimension]-ref[actual->dimension]);
             if(distance > distAct || l.size()< n)
                q.push(actual->right);
            }
-           //se obtiene el siguiente para operar
-           prof=prof+1;
-           q.pop();
+           if(actual->padre != nullptr && visitados.find(actual->padre) == visitados.end()){
+               q.push(actual->padre);
+           }
+           
+           
 
+        }
+
+        //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
+        cout << "punto inicial\n";
+
+        for(int j = 0; j < k; j++){
+                cout << ref[j] << " ";
+            }
+        cout << "\n-------------------------\n";
+        for(int i = 0 ; i < l.size(); i++){
+            aux1=l.front();
+            l.pop_front();
+            for(int j = 0; j < k; j++){
+                cout << aux1->punto->point[j] << " ";
+            }
+            cout << "distancia = " <<  aux1->distancePoint(ref) << " \n";
+            l.push_back(aux1);
        }
        return prof;
     }
