@@ -217,7 +217,7 @@ namespace KDTreeRange2{
             bool rangeFullInsideBox(std::vector<float> , std::vector<float>);
             
             //Retorna la distancia Euclidiana desde el punto de referencia al punto del nodo
-            float distancePoint(std::vector<float>);
+            float distancePoint(std::vector<float>) const;
             
             //Retorna la distancia Euclidiana desde el punto de referencia al rango del nodo
             float distanceRange(std::vector<float>);
@@ -1136,7 +1136,7 @@ namespace KDTreeRange2{
     }
     
     template<int k>
-    float Node<k>::distancePoint(std::vector<float> ref){
+    float Node<k>::distancePoint(std::vector<float> ref) const{
       float dist= 0.0f;
       float calc;
       for(int i=0;i<k;i++){
@@ -1399,6 +1399,8 @@ namespace KDTreeRange2{
        }
        return vecino;
     }
+
+    std::vector<float> reff;
     
     template<int k>
     int KDTreeR2<k>::vecinosMasCercano(std::vector<float> ref, int n){
@@ -1409,106 +1411,43 @@ namespace KDTreeRange2{
             }
         }; 
 
+        struct farther_than {
+            bool operator() (const Node<k>* lhs, const Node<k>*  rhs) const {
+                return lhs->distancePoint(reff) > rhs->distancePoint(reff);
+            }
+        }; 
 
-        //variables
-       std::list<Node<k>*> l;
-       std::queue<Node<k>*> q;
-       std::set<Node<k>*, lex_compare_nodo> visitados;
-       int prof = 1;
-       float distance=999999.9f;
-       float distAct;
-       Node<k>* actual;
-       Node<k>* aux;
-       Node<k>* aux1;
-
-        //seccion de insercion para buscar el mejor punto para partir
-       insertar(ref);
-       aux = buscarLazy(ref);
-       if(aux->padre != nullptr)
-        aux = aux->padre;
-        else
-        {
-            return 0;
-        }
         
-       eliminar(ref);
-       q.push(aux);
+        reff=ref;
+        std::queue<Node<k>*> q;
+        std::multiset<Node<k>*, farther_than> neigh; //neighbours
+        q.push(raiz);
 
-        //inicio iteraciones knn
-       while(!q.empty()){
-           prof=prof+1;
+        int count = 0;
+
+        while(q.size()>0){
+            count ++;
+            Node<k>* node = q.front(); q.pop();
+            int dim = node->dimension;
+
+            neigh.insert(node);
+            if(neigh.size() > n) neigh.erase(neigh.begin());
+            
+            //descarte por distancia en dimension disjunta
+            bool discard_left=false, discard_right=false;
+            if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
 
 
-           //seccion de comprobacion
-           actual=q.front();
-           q.pop();
-           if(visitados.find(actual) != visitados.end()){
-               continue;
-           }
-           visitados.insert(actual);
-
-
-           //se llena la lista de manera ordenada
-           //primero para el caso de vecindario no lleno
-           if(l.size()< n ){
-               aux=actual;
-               for(int i=0;i<l.size();i++){
-                   aux1=l.front();
-                   l.pop_front();
-                   if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
-                     l.push_back(aux);
-                     aux=aux1;
-                   }
-                   else{
-                     l.push_back(aux1);
-                   }
-               }
-               distance=aux->distancePoint(ref);
-               l.push_back(aux);
-           }
-           //se reemplaza el nuevo nodo si es mas cercano al ultimo de la lista, de manera ordenada
-           //se trabaja con el vacindario completo
-           else{
-               distAct=actual->distancePoint(ref);
-               if(distAct< distance){
-               
-                 aux=actual;
-                 for(int i=0;i<l.size();i++){
-                     aux1=l.front();
-                     l.pop_front();
-                     if(aux1->distancePoint(ref) >aux->distancePoint(ref)){
-                       l.push_back(aux);
-                       aux=aux1;
-                     }
-                     else{
-                       l.push_back(aux1);
-                     }
-                 }
-                 distance=(l.back())->distancePoint(ref);
-               
-               }
-           }
-           //se agregan los subarboles
-
-           //filtro de subarboles y nodos padre
-           distance = (l.back())->distancePoint(ref);
-           if(actual->left !=nullptr && visitados.find(actual->left) == visitados.end()){
-            distAct=abs(actual->punto->point[actual->dimension]-ref[actual->dimension]);
-            if(distance > distAct || l.size()< n)
-               q.push(actual->left);
-           }
-           if(actual->right != nullptr && visitados.find(actual->right) == visitados.end()){    
-            distAct=abs(actual->punto->point[actual->dimension]-ref[actual->dimension]);
-            if(distance > distAct || l.size()< n)
-               q.push(actual->right);
-           }
-           if(actual->padre != nullptr && visitados.find(actual->padre) == visitados.end()){
-               q.push(actual->padre);
-           }
-           
-           
-
+            if(node->left && ref[dim] <= node->left->rango[dim][1]){
+                q.push(node->left);
+                if(!discard_right) q.push(node->right);
+            }else{
+                if(!discard_right) q.push(node->right);
+                if(!discard_left) q.push(node->left);
+            }
         }
+
 
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
@@ -1517,16 +1456,14 @@ namespace KDTreeRange2{
                 cout << ref[j] << " ";
             }
         cout << "\n-------------------------\n";
-        for(int i = 0 ; i < l.size(); i++){
-            aux1=l.front();
-            l.pop_front();
+        for(auto nn : neigh){
             for(int j = 0; j < k; j++){
-                cout << aux1->punto->point[j] << " ";
+                cout << nn->punto->point[j] << " ";
             }
-            cout << "distancia = " <<  aux1->distancePoint(ref) << " \n";
-            l.push_back(aux1);
+            cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
-       return prof;
+       cout << "nodes:" << count << endl;
+       return count;
     }
     
     
