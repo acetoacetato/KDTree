@@ -58,8 +58,54 @@ bool generaDatosDist(string filename, int MAX_NUM, int DIM, float RANGE_MIN, flo
     }
 }
 
-bool generaDatosOrdenados(string filename, int MAX_NUM, int DIM, float RANGE_MIN, float RANGE_MAX){
+bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
+    // Para distribución uniforme
+    std::default_random_engine generator(time(NULL));
+    std::uniform_real_distribution<double> distribution(0,0.1f);
+    std::uniform_real_distribution<double> distribution2(0,1);
+    std::uniform_real_distribution<double> distribution3(0,10);
+    std::ofstream file;
+    std::ofstream filehpp;
+    file.open(filename);
+    filehpp.open("vars.hpp");
 
+    filehpp <<  "#ifndef NUMERILLOS" << endl;
+    filehpp <<  "#include<iostream>" << endl;
+    filehpp <<  "#include<vector>" << endl;
+    filehpp << "#define MAX_NUM " << MAX_NUM << endl;
+    filehpp << "#define DIM " << 3 << endl << endl;
+    filehpp << "#endif";
+    
+    for(int i=0; i<MAX_NUM ; i++){
+
+        bool coma = false;
+        
+        double numero = distribution(generator);
+
+        if(coma){
+            file << ",";
+        }
+        file << numero;
+        coma = true;
+
+        numero = distribution2(generator);
+
+        if(coma){
+            file << ",";
+        }
+        file << numero;
+        coma = true;
+
+        numero = distribution3(generator);
+
+        if(coma){
+            file << ",";
+        }
+        file << numero;
+        coma = true;
+            
+        file << endl;
+    }
 }
 
 int main(int argc, char* argv[]){
@@ -88,6 +134,10 @@ int main(int argc, char* argv[]){
     }
     if(method.compare("normal") == 0){
         generaDatosDist(FILENAME, MAX_NUM, DIM, 0.0, 1, (ordenado != 0));
+        return 0;
+    }
+    if(method.compare("3dist") == 0){
+        generaDatos3Dist(FILENAME, MAX_NUM, (ordenado != 0));
         return 0;
     }
     cout << "Metodo incorrecto" << endl;
