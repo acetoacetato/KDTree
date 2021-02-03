@@ -277,7 +277,7 @@ class KDTree{
     public:
         KDTree();
         void insertar(std::vector<float>);
-        int knn(std::vector<float> , int );
+        //int knn(std::vector<float> , int, Node<k>* );
 
 };
 
@@ -306,7 +306,7 @@ template<int k>
 
 // Retorna los K vecinos más cercanos al punto 
 template<int k>
-int KDTree<k>::knn(std::vector<float> ref, int n){
+int knn(std::vector<float> ref, int n, Node<k>* raiz){
     
 
 
@@ -338,11 +338,11 @@ int KDTree<k>::knn(std::vector<float> ref, int n){
             
             //descarte por distancia en dimension disjunta
             bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && ref[dim] - node->left->punto->point[dim] >= (*neigh.begin())->distancia(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && node->right->punto->point[dim] - ref[dim] >= (*neigh.begin())->distancia(ref) )) discard_right=true;
+            if(!node->left || (neigh.size()==n && ref[dim] - node->punto->point[dim] >= (*neigh.begin())->distancia(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && node->punto->point[dim] - ref[dim] >= (*neigh.begin())->distancia(ref) )) discard_right=true;
 
 
-            if(node->left && ref[dim] <= node->left->punto->point[dim]){
+            if(node->left && ref[dim] <= node->punto->point[dim]){
                 q.push(node->left);
                 if(!discard_right) q.push(node->right);
             }else{
