@@ -46,7 +46,7 @@ int main(int argc,const char* argv[]){
 void original(string uno, string dos){
     cout << "inicia original" << endl;
     std::vector<std::vector<float>*>* numeros = csv::cargaNumeros("test.csv");
-    KDTree::Node<DIM>* raiz = nullptr;
+    KDTree::KDTree<DIM>* raiz = new KDTree::KDTree<DIM>();
     std::ofstream salida;
 
     if(uno == "insertados"){
@@ -60,12 +60,12 @@ void original(string uno, string dos){
     for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         //arbolito->insertar(*punto);
-        raiz = KDTree::insertar<DIM>(*punto, raiz);
+        raiz->insertar(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = raiz->knn(*ultimoPunto,1);
+    int nodos = raiz->knn(*ultimoPunto,5);
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
@@ -80,23 +80,6 @@ void original(string uno, string dos){
     
 }
 
-vector<float> reff;
-
-double distance(vector<float>& v1, vector<float>&v2){
-      double dist= 0.0;
-      double calc;
-      for(int i=0;i<v1.size();i++){
-        calc = v1[i]-v2[i];
-        dist = dist + calc * calc;
-      }
-      return sqrt(dist);
-}
-
-bool closer_than(vector<float>& lhs, vector<float>&  rhs) {
-            return distance(lhs,reff) < distance(rhs,reff);
-}
-    
-
 void nuevo(string uno, string dos){
     std::vector<std::vector<float>*>* numeros = csv::cargaNumeros("test.csv");
     std::ofstream salida;
@@ -109,31 +92,14 @@ void nuevo(string uno, string dos){
         salida.open("SalidaNuevoNI" + dos + ".csv", std::ios::app);
     }
     KDTreeRange2::KDTreeR2<DIM>* arbolito = new KDTreeRange2::KDTreeR2<DIM>();
-
-    list<std::vector<float>> puntos;
-
+    
     for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
-        puntos.push_back(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
     int nodos = arbolito->vecinosMasCercano(*ultimoPunto,5);
-
-    reff=*ultimoPunto;
-    puntos.sort(closer_than);
-
-    cout << "Fuerza bruta" << endl;
-    int i=0;
-    for(auto p : puntos){
-            i++; if(i>5) break;
-            for(int j = 0; j < DIM; j++){
-                cout << p[j] << " ";
-            }
-            cout << "distancia = " <<  distance(p,reff) << " \n";
-       }
-    
     
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
@@ -142,4 +108,4 @@ void nuevo(string uno, string dos){
     salida << milisegundos << ";" << nodos << ";\n";
 
     
-}   
+}

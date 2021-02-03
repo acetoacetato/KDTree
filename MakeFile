@@ -1,0 +1,33 @@
+CC = g++
+PROJECT = a
+CFLAGS = 
+SRCFILES = main3.cpp
+n = nuevo
+a = antiguo
+nombre= insertados
+ni = noinsertados
+
+$(PROJECT): 
+	$(CC) $(CFLAGS) $(SRCFILES) -O3 -Wno-write-strings -o a.exe
+
+all: $(PROJECT)
+
+run: $(PROJECT)
+	./$(PROJECT).exe $(f)
+
+generator: 
+	$(CC) $(CFLAGS) generaPuntos.cpp Argument_helper/*.cc -o generaPuntos.exe 
+
+rungenerate: generator
+	./generaPuntos.exe -m $(m) -M $(m1) -d $(d)
+
+
+runtest: rungenerate $(PROJECT) 
+		./$(PROJECT).exe $(n) $(nombre) $(cant)
+		./$(PROJECT).exe $(a) $(nombre) $(cant)
+
+
+
+runinsert:
+	g++ main2.cpp 
+	./a.exe 10
