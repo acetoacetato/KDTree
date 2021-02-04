@@ -67,6 +67,7 @@ class Node{
         Punto<k> *punto;
         Node<k> *left, *right, *padre;
         int profundidad;
+        int dimension;
         //Constructor
         Node(std::vector<float>);
 
@@ -89,6 +90,7 @@ Node<k>::Node(std::vector<float> puntos){
 
     punto = new Punto<k>(puntos);
     profundidad = 0;
+    dimension = 0;
     //Se reinician los nodos hijos
     left = nullptr;
     right = nullptr;
@@ -122,6 +124,8 @@ void Node<k>::insertar(std::vector<float> puntos){
 
             //se inserta en la derecha
             if(actual->right == nullptr){
+                dimension = (dimension + 1) % k;
+                aux->dimension = dimension;
                 actual->right = aux;
                 aux->padre = actual;
                 aux->actualizarProfundidad();
@@ -131,6 +135,8 @@ void Node<k>::insertar(std::vector<float> puntos){
         } else{
 
             if(actual->left == nullptr){
+                dimension = (dimension + 1) % k;
+                aux->dimension = dimension;
                 actual->left = aux;
                 aux->left =nullptr;
                 aux->padre = actual;
@@ -318,7 +324,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
     //TODO: la distancia para los ultimos if es solo de la dim disjunta
 
     //variables
-    int count = 1;
+    int count = 0;
 
     reff=ref;
     std::queue<Node<k>*> q;
@@ -331,15 +337,15 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
     while(q.size()>0){
             count ++;
             Node<k>* node = q.front(); q.pop();
-            int dim = node->profundidad % k;
+            int dim = node->dimension;
 
             neigh.insert(node);
             if(neigh.size() > n) neigh.erase(neigh.begin());
             
             //descarte por distancia en dimension disjunta
             bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && ref[dim] - node->punto->point[dim] >= (*neigh.begin())->distancia(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && node->punto->point[dim] - ref[dim] >= (*neigh.begin())->distancia(ref) )) discard_right=true;
+            if(!node->left || (neigh.size()==n && abs(ref[dim] - node->punto->point[dim]) >= (*neigh.begin())->distancia(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && abs(node->punto->point[dim] - ref[dim]) >= (*neigh.begin())->distancia(ref) )) discard_right=true;
 
 
             if(node->left && ref[dim] <= node->punto->point[dim]){
@@ -351,7 +357,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
             }
         }
 
-
+        
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
 
@@ -366,6 +372,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
             cout << "distancia = " <<  nn->distancia(ref) << " \n";
        }
         cout << "nodes:" << count << endl;
+        
         
 
     

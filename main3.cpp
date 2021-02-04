@@ -65,7 +65,7 @@ void original(string uno, string dos){
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1]; 
     auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = KDTree::knn(*ultimoPunto,5,raiz);
+    int nodos = KDTree::knn(*ultimoPunto,10,raiz);
     //raiz->knn(*ultimoPunto,5); 
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -116,13 +116,12 @@ void nuevo(string uno, string dos){
     for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
-        puntos.push_back(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
-    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,5);
+    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,10);
 
-    reff=*ultimoPunto;
+    /*reff=*ultimoPunto;
     puntos.sort(closer_than);
 
     cout << "Fuerza bruta" << endl;
@@ -134,7 +133,7 @@ void nuevo(string uno, string dos){
             }
             cout << "distancia = " <<  distance(p,reff) << " \n";
        }
-    
+    */
     
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
