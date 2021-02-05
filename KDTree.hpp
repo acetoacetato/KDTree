@@ -356,7 +356,8 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
                 if(!discard_left) q.push(node->left);
             }
         }
-        /*
+        ofstream results;
+        results.open("resultadosKDT.txt");
         
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
@@ -367,13 +368,15 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
         cout << "\n-------------------------\n";
         for(auto nn : neigh){
             for(int j = 0; j < k; j++){
-                cout << nn->punto->point[j] << " ";
+                results << nn->punto->point[j] << " ";
             }
-            cout << "distancia = " <<  nn->distancia(ref) << " \n";
+            results << "distancia = " <<  nn->distancia(ref) << " \n";
        }
-        cout << "nodes:" << count << endl;
+        results << "nodes:" << count << endl;
+
+        results.close();
         
-        */
+        
 
     
 

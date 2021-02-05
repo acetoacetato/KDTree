@@ -1445,7 +1445,8 @@ namespace KDTreeRange2{
             
         }
 
-        /*
+        ofstream results;
+        results.open("resultadosKDTR.txt");
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
 
@@ -1455,12 +1456,14 @@ namespace KDTreeRange2{
         cout << "\n-------------------------\n";
         for(auto nn : neigh){
             for(int j = 0; j < k; j++){
-                cout << nn->punto->point[j] << " ";
+                results << nn->punto->point[j] << " ";
             }
-            cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
+            results << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
-       cout << "nodes:" << count << endl;
-       */
+       results << "nodes:" << count << endl;
+
+       results.close();
+       
        return count;
     }
     

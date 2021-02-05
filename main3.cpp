@@ -65,7 +65,7 @@ void original(string uno, string dos){
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1]; 
     auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = KDTree::knn(*ultimoPunto,30,raiz);
+    int nodos = KDTree::knn(*ultimoPunto,50,raiz);
     //raiz->knn(*ultimoPunto,5); 
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -116,24 +116,31 @@ void nuevo(string uno, string dos){
     for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
+        puntos.push_back(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
-    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,30);
+    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,50);
 
-    /*reff=*ultimoPunto;
+    ofstream resultados;
+
+    resultados.open("resultadosFB.txt");
+
+    reff=*ultimoPunto;
     puntos.sort(closer_than);
+    cout << "---------------------------------------------" << endl;
 
     cout << "Fuerza bruta" << endl;
     int i=0;
     for(auto p : puntos){
-            i++; if(i>5) break;
+            i++; if(i>50) break;
             for(int j = 0; j < DIM; j++){
-                cout << p[j] << " ";
+                resultados << p[j] << " ";
             }
-            cout << "distancia = " <<  distance(p,reff) << " \n";
+            resultados << "distancia = " <<  distance(p,reff) << " \n";
        }
-    */
+    resultados.close();
+    
     
     auto finish = std::chrono::high_resolution_clock::now();
     auto elapsed = finish - start;
