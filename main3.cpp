@@ -65,7 +65,7 @@ void original(string uno, string dos){
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1]; 
     auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = KDTree::knn(*ultimoPunto,10,raiz);
+    int nodos = KDTree::knn(*ultimoPunto,30,raiz);
     //raiz->knn(*ultimoPunto,5); 
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -119,7 +119,7 @@ void nuevo(string uno, string dos){
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
-    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,10);
+    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,30);
 
     /*reff=*ultimoPunto;
     puntos.sort(closer_than);

@@ -344,8 +344,8 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
             
             //descarte por distancia en dimension disjunta
             bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && abs(ref[dim] - node->punto->point[dim]) >= (*neigh.begin())->distancia(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && abs(node->punto->point[dim] - ref[dim]) >= (*neigh.begin())->distancia(ref) )) discard_right=true;
+            if(!node->left || (neigh.size()==n && ref[dim] - node->punto->point[dim] >= (*neigh.begin())->distancia(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && node->punto->point[dim] - ref[dim] >= (*neigh.begin())->distancia(ref) )) discard_right=true;
 
 
             if(node->left && ref[dim] <= node->punto->point[dim]){
@@ -356,7 +356,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
                 if(!discard_left) q.push(node->left);
             }
         }
-
+        /*
         
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
@@ -373,7 +373,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
        }
         cout << "nodes:" << count << endl;
         
-        
+        */
 
     
 

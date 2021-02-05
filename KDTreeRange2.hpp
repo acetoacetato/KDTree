@@ -1160,7 +1160,7 @@ namespace KDTreeRange2{
           dist = dist + calc * calc;
         }
       }
-      return dist;
+      return sqrt(dist);
     }
     
     
@@ -1435,20 +1435,17 @@ namespace KDTreeRange2{
             
             //descarte por distancia en dimension disjunta
             bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && abs(ref[dim] - node->left->rango[dim][1]) >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && abs(node->right->rango[dim][0] - ref[dim]) >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
+            if(!node->left || (neigh.size()==n && node->left->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && node->right->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
 
 
-            if(node->left && ref[dim] <= node->left->rango[dim][1]){
-                q.push(node->left);
-                if(!discard_right) q.push(node->right);
-            }else{
+            
                 if(!discard_right) q.push(node->right);
                 if(!discard_left) q.push(node->left);
-            }
+            
         }
 
-        
+        /*
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
 
@@ -1463,7 +1460,7 @@ namespace KDTreeRange2{
             cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
        cout << "nodes:" << count << endl;
-       
+       */
        return count;
     }
     
