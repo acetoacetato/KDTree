@@ -22,12 +22,12 @@
 
 using namespace std;
 
-void original(string, string);
-void nuevo(string, string);
+void original(string, string,int);
+void nuevo(string, string, int);
 
 int main(int argc,const char* argv[]){
 
-    int vecinos = 10;
+    int vecinos = 50;
  
     if(strcmp(argv[1], "nuevo") == 0){
         cout << "Se inicia el nuevo";
@@ -125,9 +125,10 @@ void nuevo(string uno, string dos,int v){
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
     int nodos = arbolito->vecinosMasCercano(*ultimoPunto,v);
-    /*
+    auto finish = std::chrono::high_resolution_clock::now();
 
     arbolito->toJson();
+    /*
     ofstream resultados;
 
     resultados.open("resultadosFB.txt");
@@ -139,7 +140,7 @@ void nuevo(string uno, string dos,int v){
     cout << "Fuerza bruta" << endl;
     int i=0;
     for(auto p : puntos){
-            i++; if(i>5) break;
+            i++; if(i>50) break;
             for(int j = 0; j < DIM; j++){
                 resultados << p[j] << " ";
             }
@@ -149,7 +150,7 @@ void nuevo(string uno, string dos,int v){
     */
     
     
-    auto finish = std::chrono::high_resolution_clock::now();
+   
     auto elapsed = finish - start;
     auto milisegundos = chrono::duration_cast<chrono::milliseconds>(finish - start).count();
 

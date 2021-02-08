@@ -331,8 +331,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
     std::multiset<Node<k>*, farther_than> neigh; //neighbours
     q.push(raiz);
 
-    // seccion de insercion para buscar el mejor punto para partir
-    bool insertado = false;
+    
     
     while(q.size()>0){
             count ++;
@@ -377,6 +376,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
 
         results.close();
         */
+        
         
         
 

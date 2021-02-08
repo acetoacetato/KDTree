@@ -1476,6 +1476,7 @@ namespace KDTreeRange2{
        results.close();
        */
        
+       
        return count;
     }
     
