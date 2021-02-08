@@ -18,32 +18,36 @@
 #include "csvRow.hpp"
 
 
+
+
 using namespace std;
 
 void original(string, string);
 void nuevo(string, string);
 
 int main(int argc,const char* argv[]){
+
+    int vecinos = 10;
  
     if(strcmp(argv[1], "nuevo") == 0){
         cout << "Se inicia el nuevo";
         string uno, dos;
         uno = argv[2];
         dos = argv[3];
-        nuevo(uno, dos);
+        nuevo(uno, dos, vecinos);
     }  
     else if(strcmp(argv[1], "antiguo") == 0){
         string uno, dos;
         uno = argv[2];
         dos = argv[3];
-        original(uno, dos);
+        original(uno, dos, vecinos);
     }
         
     return 0;
 }
 
 
-void original(string uno, string dos){
+void original(string uno, string dos, int v){
     cout << "inicia original" << endl;
     std::vector<std::vector<float>*>* numeros = csv::cargaNumeros("test.csv");
     KDTree::Node<DIM>* raiz = nullptr;
@@ -65,7 +69,7 @@ void original(string uno, string dos){
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1]; 
     auto start = std::chrono::high_resolution_clock::now();
     
-    int nodos = KDTree::knn(*ultimoPunto,50,raiz);
+    int nodos = KDTree::knn(*ultimoPunto,v,raiz);
     //raiz->knn(*ultimoPunto,5); 
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -98,7 +102,7 @@ bool closer_than(vector<float>& lhs, vector<float>&  rhs) {
 }
     
 
-void nuevo(string uno, string dos){
+void nuevo(string uno, string dos,int v){
     std::vector<std::vector<float>*>* numeros = csv::cargaNumeros("test.csv");
     std::ofstream salida;
     char inicial[] = "";
@@ -116,12 +120,14 @@ void nuevo(string uno, string dos){
     for(int i=0 ; i<((int)(MAX_NUM)-1) ; i++){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
-        puntos.push_back(*punto);
+        //puntos.push_back(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
-    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,50);
+    int nodos = arbolito->vecinosMasCercano(*ultimoPunto,v);
+    /*
 
+    arbolito->toJson();
     ofstream resultados;
 
     resultados.open("resultadosFB.txt");
@@ -133,13 +139,14 @@ void nuevo(string uno, string dos){
     cout << "Fuerza bruta" << endl;
     int i=0;
     for(auto p : puntos){
-            i++; if(i>50) break;
+            i++; if(i>5) break;
             for(int j = 0; j < DIM; j++){
                 resultados << p[j] << " ";
             }
             resultados << "distancia = " <<  distance(p,reff) << " \n";
        }
     resultados.close();
+    */
     
     
     auto finish = std::chrono::high_resolution_clock::now();

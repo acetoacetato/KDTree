@@ -321,7 +321,6 @@ namespace KDTreeRange2{
                 Node<k>* comparador = (actual->left == nullptr)? actual->right:actual->left;
 
                 int res = comparador->esDisjunto(punto);
-
                 //Si no es disjunto en ninguna dimensión, se inserta en ese sub árbol.
                 if(comparador->contenido(punto)){
                     actual = comparador;
@@ -363,7 +362,6 @@ namespace KDTreeRange2{
                 aux->updateAllRange(punto);
                 aux->dimension = -1;
                 actualizarProfundidad(aux);
-                
                 return;
                 
             }
@@ -372,6 +370,7 @@ namespace KDTreeRange2{
 
             //Si el nodo tiene los 2 hijos, se ve si el punto a insertar está
             //  contenido en una de las cajitas (en toda dimensión o con la regla de las dimensiones).
+
             int resp = actual->comparaCajitas(punto);
             switch(resp){
                 //Está entre las 2 cajas.
@@ -393,7 +392,7 @@ namespace KDTreeRange2{
 
 
 
-            dimension = (dimension + 1) % k;
+            
         }
 
     }
@@ -429,7 +428,6 @@ namespace KDTreeRange2{
                 }
             }
             //cout << "Disjunto de " << aux->strPunto() << endl;
-            aux->dimension = aux->dimDisjunta();
             aux = aux->padre;
             contador++;
         }
@@ -1030,13 +1028,24 @@ namespace KDTreeRange2{
     //Retorna la dimensión en la  que el punto es disjunto con el rango del nodo
     template<int k>
     int Node<k>::esDisjunto(std::vector<float>& val){
+
+
+        float dist = -9999;
+        int dim = -1;
         for(int i=0 ; i<k ; i++){
             //Si el punto no está contenido en el rango, se retorna la dimensión.
             if(rango[i][0] > val[i] || rango[i][1] < val[i])
-                return i;
+                if(rango[i][0]-val[i]>dist){
+                    dist = rango[i][0]-val[i];
+                    dim = i;
+                }
+                if(val[i]-rango[i][1]>dist){
+                    dist = val[i]-rango[i][1];
+                    dim = i;
+                }
         }
+        return dim;
 
-        return -1;
     }
 
     template<int k>
@@ -1263,7 +1272,7 @@ namespace KDTreeRange2{
     template<int k>
     void KDTreeR2<k>::toJson(){
        
-        ofstream myfile( "Graficador/basic-example.js");
+        ofstream myfile( "basic-example.js");
         myfile << "var gente = {" << endl;
         myfile << "\tchart: {" << endl;
         myfile << "\t\tcontainer: \"#basic-example\"," << endl;
@@ -1434,17 +1443,19 @@ namespace KDTreeRange2{
             if(neigh.size() > n) neigh.erase(neigh.begin());
             
             //descarte por distancia en dimension disjunta
-            bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && node->left->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && node->right->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
+             bool discard_left=false, discard_right=false;
+            if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
+            if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
 
-
-            
+            if(node->left && ref[dim] <= node->left->rango[dim][1]){
+                if(!discard_right) q.push(node->right);
+                q.push(node->left);
+            }else{
                 if(!discard_right) q.push(node->right);
                 if(!discard_left) q.push(node->left);
-            
+            }
         }
-
+        /*
         ofstream results;
         results.open("resultadosKDTR.txt");
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
@@ -1463,6 +1474,7 @@ namespace KDTreeRange2{
        results << "nodes:" << count << endl;
 
        results.close();
+       */
        
        return count;
     }

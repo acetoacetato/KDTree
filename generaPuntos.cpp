@@ -73,7 +73,7 @@ bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
     filehpp <<  "#include<iostream>" << endl;
     filehpp <<  "#include<vector>" << endl;
     filehpp << "#define MAX_NUM " << MAX_NUM << endl;
-    filehpp << "#define DIM " << 3 << endl << endl;
+    filehpp << "#define DIM " << 2 << endl << endl;
     filehpp << "#endif";
     
     for(int i=0; i<MAX_NUM ; i++){
@@ -87,7 +87,7 @@ bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
         }
         file << numero;
         coma = true;
-
+        
         numero = distribution2(generator);
 
         if(coma){

@@ -191,7 +191,7 @@ Node<k>* insertar(std::vector<float> puntos, Node<k>* kdtree = nullptr){
 
 template<int k>
 void toJson(Node<k>* raiz){
-    ofstream myfile( "Graficador/basic-example.js");
+    ofstream myfile( "basic-example.js");
     myfile << "var gente = {" << endl;
     myfile << "\tchart: {" << endl;
     myfile << "\t\tcontainer: \"#basic-example\"," << endl;
@@ -349,13 +349,14 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
 
 
             if(node->left && ref[dim] <= node->punto->point[dim]){
-                q.push(node->left);
                 if(!discard_right) q.push(node->right);
+                q.push(node->left);
             }else{
                 if(!discard_right) q.push(node->right);
                 if(!discard_left) q.push(node->left);
             }
         }
+        /*
         ofstream results;
         results.open("resultadosKDT.txt");
         
@@ -375,6 +376,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
         results << "nodes:" << count << endl;
 
         results.close();
+        */
         
         
 
