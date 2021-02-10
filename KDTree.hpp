@@ -327,15 +327,16 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
     int count = 0;
 
     reff=ref;
-    std::queue<Node<k>*> q;
+    std::priority_queue<Node<k>*, std::vector<Node<k>*>, farther_than> q;
     std::multiset<Node<k>*, farther_than> neigh; //neighbours
     q.push(raiz);
+
 
     
     
     while(q.size()>0){
             count ++;
-            Node<k>* node = q.front(); q.pop();
+            Node<k>* node = q.top(); q.pop();
             int dim = node->dimension;
 
             neigh.insert(node);
@@ -348,16 +349,22 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
 
 
             if(node->left && ref[dim] <= node->punto->point[dim]){
-                if(!discard_right) q.push(node->right);
+                if(!discard_right){
+                    q.push(node->right);
+                } 
                 q.push(node->left);
             }else{
-                if(!discard_right) q.push(node->right);
-                if(!discard_left) q.push(node->left);
+                if(!discard_right) {
+                    q.push(node->right);
+                }
+                if(!discard_left){ 
+                    q.push(node->left);
+                }
+
             }
         }
         /*
-        ofstream results;
-        results.open("resultadosKDT.txt");
+        
         
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
@@ -373,9 +380,8 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
             results << "distancia = " <<  nn->distancia(ref) << " \n";
        }
         results << "nodes:" << count << endl;
-
-        results.close();
         */
+        
         
         
         

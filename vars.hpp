@@ -2,6 +2,6 @@
 #include<iostream>
 #include<vector>
 #define MAX_NUM 30001
-#define DIM 2
+#define DIM 5
 
 #endif

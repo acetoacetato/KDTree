@@ -297,7 +297,7 @@ namespace KDTreeRange2{
                             aux->padre = actual;
                             actualizarProfundidad(aux);
                             aux->updateAllRange(punto);
-                            aux->dimension = -1;
+                            aux->dimension = 0;
                             actual->dimension = dimension;
                             return;
 
@@ -308,7 +308,7 @@ namespace KDTreeRange2{
                             aux->padre = actual;
                             aux->updateAllRange(punto);
                             actualizarProfundidad(aux);
-                            aux->dimension = -1;
+                            aux->dimension = 0;
                             actual->dimension = dimension;
                             return;
                         }
@@ -324,7 +324,7 @@ namespace KDTreeRange2{
                 //Si no es disjunto en ninguna dimensión, se inserta en ese sub árbol.
                 if(comparador->contenido(punto)){
                     actual = comparador;
-                    aux->dimension = -1;
+                    aux->dimension = 0;
                     dimension = (dimension + 1) % k;
                     continue;
                 }
@@ -360,7 +360,7 @@ namespace KDTreeRange2{
                 }
                 aux->padre = actual;
                 aux->updateAllRange(punto);
-                aux->dimension = -1;
+                aux->dimension = 0;
                 actualizarProfundidad(aux);
                 return;
                 
@@ -1031,7 +1031,7 @@ namespace KDTreeRange2{
 
 
         float dist = -9999;
-        int dim = -1;
+        int dim = 0;
         for(int i=0 ; i<k ; i++){
             //Si el punto no está contenido en el rango, se retorna la dimensión.
             if(rango[i][0] > val[i] || rango[i][1] < val[i])
@@ -1228,7 +1228,7 @@ namespace KDTreeRange2{
         if(raiz == nullptr){
             Node<k>* nodo = new Node<k>(punto);
             nodo->updateAllRange(punto);
-            nodo->dimension = -1;
+            nodo->dimension = 0;
             raiz = nodo;
             return nodo;
         }
@@ -1413,51 +1413,57 @@ namespace KDTreeRange2{
     
     template<int k>
     int KDTreeR2<k>::vecinosMasCercano(std::vector<float> ref, int n){
-        struct lex_compare_nodo {
-            bool operator() (const Node<k>* lhs, const Node<k>* rhs) const {
-                std::vector<float> origen = {0,0,0};
-                return lhs < rhs;
-            }
-        }; 
+        
 
         struct farther_than {
             bool operator() (const Node<k>* lhs, const Node<k>*  rhs) const {
                 return lhs->distancePoint(reff) > rhs->distancePoint(reff);
             }
-        }; 
+        };
+
+        struct closer_than {
+            bool operator() (const Node<k>* lhs, const Node<k>*  rhs) const {
+                return lhs->distancePoint(reff) > rhs->distancePoint(reff);
+            }
+        };  
 
         
         reff=ref;
-        std::queue<Node<k>*> q;
+        std::priority_queue<Node<k>*, std::vector<Node<k>*>, closer_than> q;
         std::multiset<Node<k>*, farther_than> neigh; //neighbours
         q.push(raiz);
 
         int count = 0;
-
         while(q.size()>0){
             count ++;
-            Node<k>* node = q.front(); q.pop();
+            Node<k>* node = q.top(); q.pop();
             int dim = node->dimension;
 
             neigh.insert(node);
             if(neigh.size() > n) neigh.erase(neigh.begin());
             
             //descarte por distancia en dimension disjunta
-             bool discard_left=false, discard_right=false;
+            bool discard_left=false, discard_right=false;
             if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
             if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
 
             if(node->left && ref[dim] <= node->left->rango[dim][1]){
-                if(!discard_right) q.push(node->right);
+                if(!discard_right){
+                    q.push(node->right);
+                } 
                 q.push(node->left);
             }else{
-                if(!discard_right) q.push(node->right);
-                if(!discard_left) q.push(node->left);
+                if(!discard_right) {
+                    q.push(node->right);
+                }
+                if(!discard_left){ 
+                    q.push(node->left);
+                }
+
             }
         }
         /*
-        ofstream results;
-        results.open("resultadosKDTR.txt");
+        
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
 
@@ -1472,9 +1478,8 @@ namespace KDTreeRange2{
             results << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
        results << "nodes:" << count << endl;
-
-       results.close();
-       */
+        */
+       
        
        
        return count;

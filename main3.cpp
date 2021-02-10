@@ -27,7 +27,7 @@ void nuevo(string, string, int);
 
 int main(int argc,const char* argv[]){
 
-    int vecinos = 50;
+    int vecinos = 30;
  
     if(strcmp(argv[1], "nuevo") == 0){
         cout << "Se inicia el nuevo";
