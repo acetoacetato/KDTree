@@ -373,6 +373,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
         
         
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
+        /*
         cout << "punto inicial\n";
 
         for(int j = 0; j < k; j++){
@@ -386,7 +387,7 @@ int knn(std::vector<float> ref, int n, Node<k>* raiz){
             cout << "distancia = " <<  nn->distancia(ref) << " \n";
        }
         cout << "nodes:" << count << endl;
-        
+        */
         
         
         

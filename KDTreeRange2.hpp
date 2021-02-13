@@ -1481,7 +1481,7 @@ namespace KDTreeRange2{
             //if (count==10) exit(0);
         }
         
-        
+        /*
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
 
@@ -1496,7 +1496,7 @@ namespace KDTreeRange2{
             cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
        cout << "nodes:" << count << endl;
-        
+        */
        
        
        
