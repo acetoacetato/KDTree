@@ -56,6 +56,8 @@ bool generaDatosDist(string filename, int MAX_NUM, int DIM, float RANGE_MIN, flo
         }
         file << endl;
     }
+
+    return true;
 }
 
 bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
@@ -106,6 +108,8 @@ bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
             
         file << endl;
     }
+
+    return true;
 }
 
 int main(int argc, char* argv[]){
