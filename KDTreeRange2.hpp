@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <queue>
+#include <stack>
 #include <list>
 #include <fstream>
 #include<array>
@@ -1429,7 +1430,8 @@ namespace KDTreeRange2{
 
         
         reff=ref;
-        std::priority_queue<Node<k>*, std::vector<Node<k>*>, closer_than> q;
+        std::stack<Node<k>*> q;
+        //std::priority_queue<Node<k>*, std::vector<Node<k>*>, closer_than> q;
         std::multiset<Node<k>*, farther_than> neigh; //neighbours
         q.push(raiz);
 
@@ -1438,31 +1440,47 @@ namespace KDTreeRange2{
             count ++;
             Node<k>* node = q.top(); q.pop();
             int dim = node->dimension;
+            //cout << node->strRangos() << endl;
+            //cout << dim << endl;
+            
 
             neigh.insert(node);
             if(neigh.size() > n) neigh.erase(neigh.begin());
             
+
+            //cout << "min_dist:" << (*neigh.begin())->distancePoint(ref) << endl;
+            
             //descarte por distancia en dimension disjunta
             bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) discard_left=true;
-            if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) discard_right=true;
+            if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) {
+                //cout << "discard_left" << endl;
+                discard_left=true;
+            }
+            if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) {
+                //cout << "discard_right" << endl;
+                discard_right=true;
+            }
 
             if(node->left && ref[dim] <= node->left->rango[dim][1]){
+                //cout << "left" << endl;
                 if(!discard_right){
                     q.push(node->right);
                 } 
                 q.push(node->left);
+                
             }else{
-                if(!discard_right) {
-                    q.push(node->right);
-                }
+                //cout << "right" << endl;
                 if(!discard_left){ 
                     q.push(node->left);
                 }
+                if(!discard_right) {
+                    q.push(node->right);
+                }
 
             }
+            //if (count==10) exit(0);
         }
-        /*
+        
         
         //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
         cout << "punto inicial\n";
@@ -1473,12 +1491,12 @@ namespace KDTreeRange2{
         cout << "\n-------------------------\n";
         for(auto nn : neigh){
             for(int j = 0; j < k; j++){
-                results << nn->punto->point[j] << " ";
+                cout << nn->punto->point[j] << " ";
             }
-            results << "distancia = " <<  nn->distancePoint(ref) << " \n";
+            cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
        }
-       results << "nodes:" << count << endl;
-        */
+       cout << "nodes:" << count << endl;
+        
        
        
        
