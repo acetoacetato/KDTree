@@ -30,8 +30,10 @@ bool generaDatosDist(string filename, int MAX_NUM, int DIM, float RANGE_MIN, flo
     std::default_random_engine generator(time(NULL));
     std::uniform_real_distribution<double> distribution(RANGE_MIN,RANGE_MAX);
     std::ofstream file;
+    std::ofstream fileelim;
     std::ofstream filehpp;
     file.open(filename);
+    fileelim.open("elim.csv");
     filehpp.open("vars.hpp");
 
     filehpp <<  "#ifndef NUMERILLOS" << endl;
@@ -40,19 +42,37 @@ bool generaDatosDist(string filename, int MAX_NUM, int DIM, float RANGE_MIN, flo
     filehpp << "#define MAX_NUM " << MAX_NUM << endl;
     filehpp << "#define DIM " << DIM << endl << endl;
     filehpp << "#endif";
-    
+    int prob = 1;
     for(int i=0; i<MAX_NUM ; i++){
 
         bool coma = false;
+        prob++;
         for(int j=0 ; j<DIM ; j++){
             double numero = distribution(generator);
 
             if(coma){
                 file << ",";
             }
+
+
+            if(prob%3 == 0){
+                if(coma){
+                    fileelim << ",";
+                }
+                fileelim << numero;
+            }
+
+
+
+
+
             file << numero;
             coma = true;
             
+        }
+        if(prob%3 == 0){
+            fileelim << endl;
+            prob = 0;
         }
         file << endl;
     }

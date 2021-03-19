@@ -80,6 +80,8 @@ class Node{
         // Retorna la distancia del nodo al nodo recibido por parámetro
         float distancia(std::vector<float>)const;
 
+        int eliminar(std::vector<float>);
+
 };
 
 
@@ -180,6 +182,58 @@ template<int k>
 
     return -1;//nullptr;
 }
+
+template<int k>
+/*Punto<k>* */int Node<k>::eliminar(std::vector<float> punto){
+    int dimension = 0;
+    Node<k>* actual = this;
+    Node<k>* raiz = this;
+    Punto<k>* auxPunto;
+    int recorridos = 1;
+    while(actual != nullptr){
+        auxPunto = actual->punto;
+
+        if(auxPunto->compare(punto)){
+            if(actual->padre->left == actual) actual->padre->left = nullptr;
+            else {
+                actual->padre->right = nullptr;
+            }
+            std::stack<Node<k>*> s;
+            if(actual->left != nullptr)s.push(actual->left);
+            if(actual->right != nullptr)s.push(actual->right);
+            actual->Node<k>::~Node<k>();
+            delete [] actual;
+            while(s.size() > 0){
+                actual = s.top();
+                s.pop();
+
+                raiz->insertar(actual->punto->point);
+
+                if(actual->left != nullptr)s.push(actual->left);
+                if(actual->right != nullptr)s.push(actual->right);
+
+                actual->Node<k>::~Node<k>();
+                delete [] actual;
+
+            }
+            return 1;
+        }
+
+        if(auxPunto->getVal(dimension) < punto[dimension]){
+            actual = actual->right;
+            recorridos++;
+        } else{
+            actual = actual->left;
+            recorridos++;
+        }
+            
+        
+        dimension = (dimension + 1) % k;
+    }
+
+    return 0;//nullptr;
+}
+
 
 template<int k>
 Node<k>* insertar(std::vector<float> puntos, Node<k>* kdtree = nullptr){

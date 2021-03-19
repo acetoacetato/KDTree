@@ -1206,7 +1206,7 @@ namespace KDTreeRange2{
             list<Node<k>*> puntosInsideBox(std::vector<float>, std::vector<float>);
             void eliminaPuntosInsideBox(std::vector<float>, std::vector<float>);
             Node<k>* vecinoMasCercano(std::vector<float>);
-            int vecinosMasCercano(std::vector<float>, int);
+            int vecinosMasCercano(std::vector<float>, int, bool);
 
     };
 
@@ -1413,7 +1413,7 @@ namespace KDTreeRange2{
     std::vector<float> reff;
     
     template<int k>
-    int KDTreeR2<k>::vecinosMasCercano(std::vector<float> ref, int n){
+    int KDTreeR2<k>::vecinosMasCercano(std::vector<float> ref, int n, bool form){
         
 
         struct farther_than {
@@ -1436,72 +1436,145 @@ namespace KDTreeRange2{
         q.push(raiz);
 
         int count = 0;
-        while(q.size()>0){
-            count ++;
-            Node<k>* node = q.top(); q.pop();
-            int dim = node->dimension;
-            //cout << node->strRangos() << endl;
-            //cout << dim << endl;
-            
 
-            neigh.insert(node);
-            if(neigh.size() > n) neigh.erase(neigh.begin());
-            
-
-            //cout << "min_dist:" << (*neigh.begin())->distancePoint(ref) << endl;
-            
-            //descarte por distancia en dimension disjunta
-            bool discard_left=false, discard_right=false;
-            if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) {
-                //cout << "discard_left" << endl;
-                discard_left=true;
-            }
-            if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) {
-                //cout << "discard_right" << endl;
-                discard_right=true;
-            }
-
-            if(node->left && ref[dim] <= node->left->rango[dim][1]){
-                //cout << "left" << endl;
-                if(!discard_right){
-                    q.push(node->right);
-                } 
-                q.push(node->left);
+        if(form){
+            while(q.size()>0){
+                count ++;
+                Node<k>* node = q.top(); q.pop();
+                int dim = node->dimension;
+                //cout << node->strRangos() << endl;
+                //cout << dim << endl;
                 
-            }else{
-                //cout << "right" << endl;
-                if(!discard_left){ 
+
+                neigh.insert(node);
+                if(neigh.size() > n) neigh.erase(neigh.begin());
+                
+
+                //cout << "min_dist:" << (*neigh.begin())->distancePoint(ref) << endl;
+                
+                //descarte por distancia en dimension disjunta
+                bool discard_left=false, discard_right=false;
+                if(!node->left || (neigh.size()==n && node->left->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) {
+                    //cout << "discard_left" << endl;
+                    discard_left=true;
+                }
+                if(!node->right || (neigh.size()==n && node->right->distanceRange(ref) >= (*neigh.begin())->distancePoint(ref) )) {
+                    //cout << "discard_right" << endl;
+                    discard_right=true;
+                }
+
+                if(node->left && ref[dim] <= node->left->rango[dim][1]){
+                    //cout << "left" << endl;
+                    if(!discard_right){
+                        q.push(node->right);
+                    } 
                     q.push(node->left);
-                }
-                if(!discard_right) {
-                    q.push(node->right);
-                }
+                    
+                }else{
+                    //cout << "right" << endl;
+                    if(!discard_left){ 
+                        q.push(node->left);
+                    }
+                    if(!discard_right) {
+                        q.push(node->right);
+                    }
 
+                }
+                //if (count==10) exit(0);
             }
-            //if (count==10) exit(0);
-        }
-        
-        /*
-        //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
-        cout << "punto inicial\n";
+            
+            /*
+            //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
+            cout << "punto inicial\n";
 
-        for(int j = 0; j < k; j++){
-                cout << ref[j] << " ";
-            }
-        cout << "\n-------------------------\n";
-        for(auto nn : neigh){
             for(int j = 0; j < k; j++){
-                cout << nn->punto->point[j] << " ";
+                    cout << ref[j] << " ";
+                }
+            cout << "\n-------------------------\n";
+            for(auto nn : neigh){
+                for(int j = 0; j < k; j++){
+                    cout << nn->punto->point[j] << " ";
+                }
+                cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
             }
-            cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
-       }
-       cout << "nodes:" << count << endl;
-        */
-       
-       
-       
-       return count;
+            cout << "nodes:" << count << endl;
+            */
+            
+            
+            
+            
+            
+        }
+        else{
+            while(q.size()>0){
+                count ++;
+                Node<k>* node = q.top(); q.pop();
+                int dim = node->dimension;
+                //cout << node->strRangos() << endl;
+                //cout << dim << endl;
+                
+
+                neigh.insert(node);
+                if(neigh.size() > n) neigh.erase(neigh.begin());
+                
+
+                //cout << "min_dist:" << (*neigh.begin())->distancePoint(ref) << endl;
+                
+                //descarte por distancia en dimension disjunta
+                bool discard_left=false, discard_right=false;
+                if(!node->left || (neigh.size()==n && ref[dim] - node->left->rango[dim][1] >= (*neigh.begin())->distancePoint(ref) )) {
+                    //cout << "discard_left" << endl;
+                    discard_left=true;
+                }
+                if(!node->right || (neigh.size()==n && node->right->rango[dim][0] - ref[dim] >= (*neigh.begin())->distancePoint(ref) )) {
+                    //cout << "discard_right" << endl;
+                    discard_right=true;
+                }
+
+                if(node->left && ref[dim] <= node->left->rango[dim][1]){
+                    //cout << "left" << endl;
+                    if(!discard_right){
+                        q.push(node->right);
+                    } 
+                    q.push(node->left);
+                    
+                }else{
+                    //cout << "right" << endl;
+                    if(!discard_left){ 
+                        q.push(node->left);
+                    }
+                    if(!discard_right) {
+                        q.push(node->right);
+                    }
+
+                }
+                //if (count==10) exit(0);
+            }
+            
+            /*
+            //se imprime por consola el vecindario obtenido y se retorna la cantidad de nodos visitados
+            cout << "punto inicial\n";
+
+            for(int j = 0; j < k; j++){
+                    cout << ref[j] << " ";
+                }
+            cout << "\n-------------------------\n";
+            for(auto nn : neigh){
+                for(int j = 0; j < k; j++){
+                    cout << nn->punto->point[j] << " ";
+                }
+                cout << "distancia = " <<  nn->distancePoint(ref) << " \n";
+            }
+            cout << "nodes:" << count << endl;
+            */
+            
+            
+            
+            
+        }
+        return count;
     }
+        
     
     
 
