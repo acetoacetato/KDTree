@@ -132,6 +132,92 @@ bool generaDatos3Dist(string filename, int MAX_NUM, bool ordenado){
     return true;
 }
 
+bool generaDatos5Dist(string filename, int MAX_NUM, bool ordenado){
+    // Para distribución uniforme
+    std::default_random_engine generator(time(NULL));
+    std::uniform_real_distribution<double> distribution(0,10.0f);
+    std::ofstream file;
+    std::ofstream filehpp;
+    file.open(filename);
+    filehpp.open("vars.hpp");
+
+    filehpp <<  "#ifndef NUMERILLOS" << endl;
+    filehpp <<  "#include<iostream>" << endl;
+    filehpp <<  "#include<vector>" << endl;
+    filehpp << "#define MAX_NUM " << MAX_NUM << endl;
+    filehpp << "#define DIM " << 5 << endl << endl;
+    filehpp << "#endif";
+    
+    for(int i=0; i<MAX_NUM ; i++){
+
+        bool coma = false;
+
+        for(int j = 0; j<5; j++){
+            double numero = distribution(generator);
+
+            if(coma){
+                file << ",";
+            }
+            file << numero;
+            coma = true;
+        }
+        file << endl;
+        
+        
+        
+    }
+
+    return true;
+}
+
+bool generaDatos20Dist(string filename, int MAX_NUM, bool ordenado){
+    // Para distribución uniforme
+    std::default_random_engine generator(time(NULL));
+    std::uniform_real_distribution<double> distribution(0,2.0f);
+    std::uniform_real_distribution<double> distribution2(0,1.0f);
+    std::ofstream file;
+    std::ofstream filehpp;
+    file.open(filename);
+    filehpp.open("vars.hpp");
+
+    filehpp <<  "#ifndef NUMERILLOS" << endl;
+    filehpp <<  "#include<iostream>" << endl;
+    filehpp <<  "#include<vector>" << endl;
+    filehpp << "#define MAX_NUM " << MAX_NUM << endl;
+    filehpp << "#define DIM " << 20 << endl << endl;
+    filehpp << "#endif";
+    
+    for(int i=0; i<MAX_NUM ; i++){
+
+        bool coma = false;
+
+        for(int j = 0; j<17; j++){
+            double numero = distribution(generator);
+
+            if(coma){
+                file << ",";
+            }
+            file << numero;
+            coma = true;
+        }
+
+        for(int j = 0; j<3; j++){
+            double numero = distribution2(generator);
+
+            if(coma){
+                file << ",";
+            }
+            file << numero;
+            coma = true;
+        }
+
+
+        file << endl;
+    }
+
+    return true;
+}
+
 int main(int argc, char* argv[]){
     int MAX_NUM = 10;
     int DIM = 2;
@@ -162,6 +248,14 @@ int main(int argc, char* argv[]){
     }
     if(method.compare("3dist") == 0){
         generaDatos3Dist(FILENAME, MAX_NUM, (ordenado != 0));
+        return 0;
+    }
+    if(method.compare("5dist") == 0){
+        generaDatos5Dist(FILENAME, MAX_NUM, (ordenado != 0));
+        return 0;
+    }
+    if(method.compare("20dist") == 0){
+        generaDatos20Dist(FILENAME, MAX_NUM, (ordenado != 0));
         return 0;
     }
     cout << "Metodo incorrecto" << endl;

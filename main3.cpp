@@ -71,10 +71,6 @@ void original(string uno, string dos, int v){
         //arbolito->insertar(*punto);
         raiz = KDTree::insertar<DIM>(*punto, raiz);
     }
-    for(int i=0;i<500000; i++){
-        auto punto = (*eliminar)[i];
-        raiz->eliminar(*punto);
-    }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1]; 
     auto start = std::chrono::high_resolution_clock::now();
     
@@ -131,10 +127,6 @@ void nuevo(string uno, string dos,int v){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
         //puntos.push_back(*punto);
-    }
-    for(int i=0;i<500000; i++){
-        auto punto = (*eliminar)[i];
-        arbolito->eliminar(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
@@ -194,10 +186,6 @@ void nuevo2(string uno, string dos,int v){
         auto punto = (*numeros)[i];
         arbolito->insertar(*punto);
         //puntos.push_back(*punto);
-    }
-    for(int i=0;i<500000; i++){
-        auto punto = (*eliminar)[i];
-        arbolito->eliminar(*punto);
     }
     auto ultimoPunto = (*numeros)[(int)(MAX_NUM)-1];
     auto start = std::chrono::high_resolution_clock::now();
